@@ -35,9 +35,10 @@ private fun writeImageToDisk(pixels: IntArray, fileName: String) {
     val graphics = bi.createGraphics()
     val image = Toolkit.getDefaultToolkit().createImage(source)
     graphics.drawImage(image, 0, 0, null)
-    val baos = ByteArrayOutputStream()
-    val encoder = JPEGCodec.createJPEGEncoder(baos)
-    encoder.encode(bi)
-    baos.close()
-    FileUtils.writeByteArrayToFile(File(fileName), baos.toByteArray())
+
+    ByteArrayOutputStream().use {
+        val encoder = JPEGCodec.createJPEGEncoder(it)
+        encoder.encode(bi)
+        FileUtils.writeByteArrayToFile(File(fileName), it.toByteArray())
+    }
 }
