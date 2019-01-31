@@ -26,4 +26,15 @@ class Vect3Test {
         val v2 = Vect3(5F, 6F, 7F)
         assertEquals(Vect3(-3F, 6F, -3F), v1.crossProduct(v2))
     }
+
+    @Test
+    fun scale() {
+        assertEquals(Vect3(4F,8F, 16F), Vect3(2F, 4F, 8F).scale(2F))
+    }
+
+    @Test
+    fun magnitude() {
+        assertEquals(10.0, Vect3(6F, 8F).magnitude(), 0.1)
+        assertEquals(10.7, Vect3(6F, 8F, 4F).magnitude(), 0.1)
+    }
 }

@@ -14,11 +14,28 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
         return Vect3(cx, cy, cz)
     }
 
+    fun scale(scalar: Float) = Vect3(x * scalar, y * scalar, z * scalar)
+
+    fun magnitude(): Double {
+        return Math.sqrt(
+            Math.pow(x.toDouble(), 2.0) +
+                    Math.pow(y.toDouble(), 2.0) +
+                    Math.pow(z.toDouble(), 2.0)
+        )
+    }
+
     override infix operator fun equals(other: Any?): Boolean {
         return if (other is Vect3) {
             x == other.x && y == other.y && z == other.z
         } else {
             false
         }
+    }
+
+    override fun hashCode(): Int {
+        var result = x.hashCode()
+        result = 31 * result + y.hashCode()
+        result = 31 * result + z.hashCode()
+        return result
     }
 }
