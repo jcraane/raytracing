@@ -5,6 +5,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class Vect3Test {
+    @Test
+    fun add() {
+        assertEquals(Vect3(10F, 14F, 7F), Vect3(2F, 4F, 6F) + Vect3(8F, 10F, 1F))
+    }
+
+    @Test
+    fun subtract() {
+        assertEquals(Vect3(-6F, -6F, 5F), Vect3(2F, 4F, 6F) - Vect3(8F, 10F, 1F))
+    }
 
     @Test
     fun dotProduct() {
