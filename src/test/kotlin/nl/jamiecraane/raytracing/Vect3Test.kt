@@ -46,4 +46,12 @@ class Vect3Test {
         assertEquals(10.0, Vect3(6F, 8F).magnitude(), 0.1)
         assertEquals(10.7, Vect3(6F, 8F, 4F).magnitude(), 0.1)
     }
+
+    @Test
+    fun normalize() {
+        val n = Vect3(3F, 5F, 2F).normalize()
+        assertEquals(0.48F, n.x, 0.01F)
+        assertEquals(0.81F, n.y, 0.01F)
+        assertEquals(0.32F, n.z, 0.01F)
+    }
 }
