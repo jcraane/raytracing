@@ -41,23 +41,33 @@ private fun render(spheres: List<Sphere>, lights: List<Light>) {
             val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
             val dir = Vect3(x, y, z).normalize()
             val orig = Vect3(0F, 0F, 0F)
-            pixels[index] = castRay(orig, dir, spheres).rgb
+            pixels[index] = castRay(orig, dir, spheres, lights).rgb
         }
     }
 
     writeImageToDisk(pixels, "image.jpg")
 }
 
-private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>): Color {
+private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List<Light>): Color {
     val result = sceneIntersect(orig, dir, spheres)
     return if (!result.intersect) {
         backgroundColor
     } else {
-        result.material.diffuseColor
+        var diffuseLightIntensity = 0F
+        for (light in lights) {
+            if (result.hit != null && result.N != null) {
+                val lightDir = (light.position - result.hit).normalize()
+                diffuseLightIntensity += light.intensity * Math.max(0F, lightDir.dotProduct(result.N))
+            }
+        }
+        val r = Math.min(255F, result.material.diffuseColor.red * diffuseLightIntensity)
+        val g = Math.min(255F, result.material.diffuseColor.green * diffuseLightIntensity)
+        val b = Math.min(255F, result.material.diffuseColor.blue * diffuseLightIntensity)
+        Color(r.toInt(), g.toInt(), b.toInt())
     }
 }
 
-private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>) : IntersectResult {
+private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): IntersectResult {
     var sphereDist = Float.MAX_VALUE
     var material = Material(Color.BLACK)
     var hit: Vect3? = null
