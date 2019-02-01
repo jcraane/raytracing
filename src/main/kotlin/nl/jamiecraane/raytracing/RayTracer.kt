@@ -42,14 +42,12 @@ private fun render(spheres: List<Sphere>) {
             val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
             val dir = Vect3(x, y, z).normalize()
             val orig = Vect3(0F, 0F, 0F)
-            for (x in 0 until spheres.size) {
-                if (x == 0) {
-                    if (spheres[x].rayIntersect(orig, dir)) {
-                        pixels[index] = spheres[x].color.rgb
-                    } else if (spheres[x + 1].rayIntersect(orig, dir)) {
-                        pixels[index] = spheres[x + 1].color.rgb
-                    } else {
-                        pixels[index] = backgroundColor.rgb
+            for (s in 0 until spheres.size) {
+                if (s == 0) {
+                    when {
+                        spheres[s].rayIntersect(orig, dir) -> pixels[index] = spheres[s].color.rgb
+                        spheres[s + 1].rayIntersect(orig, dir) -> pixels[index] = spheres[s + 1].color.rgb
+                        else -> pixels[index] = backgroundColor.rgb
                     }
                 }
             }
