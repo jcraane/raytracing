@@ -19,6 +19,7 @@ class Vect3Test {
     fun dotProduct() {
         assertEquals(44F, Vect3(6F, 8F).dotProduct(Vect3(2F, 4F)))
         assertEquals(74F, Vect3(6F, 8F, 3F).dotProduct(Vect3(2F, 4F, 10F)))
+        assertEquals(13.2F, Vect3(-3F, 0F, -16F).dotProduct(Vect3(-0.544575F, 0.418946F, -0.726582F)), 0.1F)
     }
 
     @Test

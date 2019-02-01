@@ -19,15 +19,13 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
     /**
      * Calculates the length (magnitude) of the vector.
      */
-    fun magnitude(): Double {
-        return Math.sqrt(
-            Math.pow(x.toDouble(), 2.0) +
-                    Math.pow(y.toDouble(), 2.0) +
-                    Math.pow(z.toDouble(), 2.0)
-        )
-    }
+    fun magnitude() = Math.sqrt(
+        Math.pow(x.toDouble(), 2.0) +
+                Math.pow(y.toDouble(), 2.0) +
+                Math.pow(z.toDouble(), 2.0)
+    )
 
-    fun normalize() : Vect3 {
+    fun normalize(): Vect3 {
         val m = magnitude()
         return Vect3((x / m).toFloat(), (y / m).toFloat(), (z / m).toFloat())
     }
