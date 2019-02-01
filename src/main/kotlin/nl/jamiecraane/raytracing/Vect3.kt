@@ -6,6 +6,7 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
     infix operator fun minus(other: Vect3) = Vect3(x - other.x, y - other.y, z - other.z)
 
     fun dotProduct(other: Vect3) = (this.x * other.x) + (this.y * other.y) + (this.z * other.z)
+    infix operator fun times(other: Vect3) = dotProduct(other)
 
     fun crossProduct(other: Vect3): Vect3 {
         val cx = (y * other.z) - (z * other.y)

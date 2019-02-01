@@ -22,6 +22,8 @@ private const val fov = Math.PI / 3.0
 private fun render(sphere: Sphere) {
     val size = width * height
     val pixels = IntArray(size)
+
+//    todo create a parallel render loop
     for (j in 0 until height) {
         for (i in 0 until width) {
             val index = i + j * width
@@ -47,6 +49,7 @@ private fun castRay(orig: Vect3, dir: Vect3, sphere: Sphere): Color {
     }
 }
 
+//todo minimize JPEG compression
 private fun writeImageToDisk(pixels: IntArray, fileName: String) {
     val source = MemoryImageSource(width, height, pixels, 0, width)
     val bi = BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR)
