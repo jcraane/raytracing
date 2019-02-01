@@ -38,7 +38,7 @@ private fun render(spheres: List<Sphere>, lights: List<Light>) {
         }
     }
 
-    RayTracedImage(width, height, pixels).writeImageToDisk("image.jpg")
+    RayTracedImage(width, height, pixels).writeImageToFile("image.jpg")
 }
 
 private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List<Light>): Color {
