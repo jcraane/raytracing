@@ -51,4 +51,11 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
         result = 31 * result + z.hashCode()
         return result
     }
+
+    companion object {
+        /**
+         * Returns a vector at the origin (0,0,0).
+         */
+        fun originVector() = Vect3(0F, 0F)
+    }
 }

@@ -10,11 +10,16 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 
 fun main() {
+    val ivory = Material(Color(1F, 0F, 0F))
+    val redRubber = Material(Color(0F, 1F, 0F))
     render(
         listOf(
-            Sphere(Vect3(-3F, 0F, -16F), 2F, Color(1F, 0F, 0F)),
-            Sphere(Vect3(3F, 0F, -32F), 2F, Color(0F, 1F, 0F))
-        )
+            Sphere(Vect3(-3F, 0F, -16F), 2F, ivory),
+            Sphere(Vect3(-1F, -1.5F, -12F), 2F, redRubber),
+            Sphere(Vect3(1.5F, -0.5F, -18F), 3F, redRubber),
+            Sphere(Vect3(7F, 5F, -18F), 4F, ivory)
+        ),
+        listOf(Light(Vect3(-20F, 20F, 20F), 1.5F))
     )
 }
 
@@ -23,7 +28,7 @@ private const val height = 768
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
 private const val fov = Math.PI / 3.0
 
-private fun render(spheres: List<Sphere>) {
+private fun render(spheres: List<Sphere>, lights: List<Light>) {
     val size = width * height
     val pixels = IntArray(size)
 
@@ -31,41 +36,46 @@ private fun render(spheres: List<Sphere>) {
     for (j in 0 until height) {
         for (i in 0 until width) {
             val index = i + j * width
-//            val x: Float = ((2 * (i * 0.5F) / width - 1) * Math.tan(fov / 2.0) * width / height).toFloat()
-//            val y: Float
-//
-//
-//            = ((2 * (j + 0.5F) / height - 1) * Math.tan(fov / 2.0)).toFloat()
-
             val x: Float = (i + 0.5F) - (width / 2)
             val y: Float = -(j + 0.5F) + (height / 2)
             val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
             val dir = Vect3(x, y, z).normalize()
             val orig = Vect3(0F, 0F, 0F)
-            for (s in 0 until spheres.size) {
-                if (s == 0) {
-                    when {
-                        spheres[s].rayIntersect(orig, dir) -> pixels[index] = spheres[s].color.rgb
-                        spheres[s + 1].rayIntersect(orig, dir) -> pixels[index] = spheres[s + 1].color.rgb
-                        else -> pixels[index] = backgroundColor.rgb
-                    }
-                }
-            }
-//            pixels[index] = castRay(orig, dir, sphere).rgb
+            pixels[index] = castRay(orig, dir, spheres).rgb
         }
     }
 
     writeImageToDisk(pixels, "image.jpg")
 }
 
-private fun castRay(orig: Vect3, dir: Vect3, sphere: Sphere): Color {
-    return if (!sphere.rayIntersect(orig, dir)) {
+private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>): Color {
+    val result = sceneIntersect(orig, dir, spheres)
+    return if (!result.intersect) {
         backgroundColor
     } else {
-//        Color(0.4F, 0.4F, 0.3F)
-        Color(1F, 0.0F, 0.0F)
+        result.material.diffuseColor
     }
 }
+
+private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>) : IntersectResult {
+    var sphereDist = Float.MAX_VALUE
+    var material = Material(Color.BLACK)
+    var hit: Vect3? = null
+    var N: Vect3? = null
+    for (sphere in spheres) {
+        val (intersect, distance) = sphere.rayIntersect(orig, dir)
+        if (intersect && distance < sphereDist) {
+            sphereDist = distance
+            hit = orig + dir.scale(distance)
+            N = (hit - sphere.center).normalize()
+            material = sphere.material
+        }
+    }
+
+    return IntersectResult(hit, N, material, sphereDist < 1000)
+}
+
+class IntersectResult(val hit: Vect3? = null, val N: Vect3? = null, val material: Material, val intersect: Boolean)
 
 //todo minimize JPEG compression
 private fun writeImageToDisk(pixels: IntArray, fileName: String) {
