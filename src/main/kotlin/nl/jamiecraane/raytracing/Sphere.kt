@@ -1,6 +1,8 @@
 package nl.jamiecraane.raytracing
 
-class Sphere(val center: Vect3, val radius: Float) {
+import java.awt.Color
+
+class Sphere(val center: Vect3, val radius: Float, val color: Color) {
     fun rayIntersect(orig: Vect3, dir: Vect3): Boolean {
         val diameter = radius * radius
         val L = center - orig

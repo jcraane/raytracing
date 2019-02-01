@@ -12,8 +12,8 @@ import java.io.File
 fun main() {
     render(
         listOf(
-            Sphere(Vect3(-3F, 0F, -16F), 2F),
-            Sphere(Vect3(3F, 0F, -16F), 1F)
+            Sphere(Vect3(-3F, 0F, -16F), 2F, Color(1F, 0F, 0F)),
+            Sphere(Vect3(3F, 0F, -32F), 2F, Color(0F, 1F, 0F))
         )
     )
 }
@@ -21,7 +21,6 @@ fun main() {
 private const val width = 1024
 private const val height = 768
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
-private val sphereColor = Color(1F, 0F, 0F)
 private const val fov = Math.PI / 3.0
 
 private fun render(spheres: List<Sphere>) {
@@ -45,12 +44,12 @@ private fun render(spheres: List<Sphere>) {
             val orig = Vect3(0F, 0F, 0F)
             for (x in 0 until spheres.size) {
                 if (x == 0) {
-                    var intersect = spheres[x].rayIntersect(orig, dir)
-                    intersect = intersect || spheres[x + 1].rayIntersect(orig, dir)
-                    pixels[index] = if (intersect) {
-                        sphereColor.rgb
+                    if (spheres[x].rayIntersect(orig, dir)) {
+                        pixels[index] = spheres[x].color.rgb
+                    } else if (spheres[x + 1].rayIntersect(orig, dir)) {
+                        pixels[index] = spheres[x + 1].color.rgb
                     } else {
-                        backgroundColor.rgb
+                        pixels[index] = backgroundColor.rgb
                     }
                 }
             }
