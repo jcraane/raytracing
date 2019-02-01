@@ -10,16 +10,21 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 
 fun main() {
-    val sphere = Sphere(Vect3(-3F, 0F, -16F), 2F)
-    render(sphere)
+    render(
+        listOf(
+            Sphere(Vect3(-3F, 0F, -16F), 2F),
+            Sphere(Vect3(3F, 0F, -16F), 1F)
+        )
+    )
 }
 
 private const val width = 1024
 private const val height = 768
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
+private val sphereColor = Color(1F, 0F, 0F)
 private const val fov = Math.PI / 3.0
 
-private fun render(sphere: Sphere) {
+private fun render(spheres: List<Sphere>) {
     val size = width * height
     val pixels = IntArray(size)
 
@@ -28,13 +33,28 @@ private fun render(sphere: Sphere) {
         for (i in 0 until width) {
             val index = i + j * width
 //            val x: Float = ((2 * (i * 0.5F) / width - 1) * Math.tan(fov / 2.0) * width / height).toFloat()
-//            val y: Float = ((2 * (j + 0.5F) / height - 1) * Math.tan(fov / 2.0)).toFloat()
+//            val y: Float
+//
+//
+//            = ((2 * (j + 0.5F) / height - 1) * Math.tan(fov / 2.0)).toFloat()
 
             val x: Float = (i + 0.5F) - (width / 2)
             val y: Float = -(j + 0.5F) + (height / 2)
             val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
             val dir = Vect3(x, y, z).normalize()
-            pixels[index] = castRay(Vect3(0F, 0F, 0F), dir, sphere).rgb
+            val orig = Vect3(0F, 0F, 0F)
+            for (x in 0 until spheres.size) {
+                if (x == 0) {
+                    var intersect = spheres[x].rayIntersect(orig, dir)
+                    intersect = intersect || spheres[x + 1].rayIntersect(orig, dir)
+                    pixels[index] = if (intersect) {
+                        sphereColor.rgb
+                    } else {
+                        backgroundColor.rgb
+                    }
+                }
+            }
+//            pixels[index] = castRay(orig, dir, sphere).rgb
         }
     }
 
@@ -45,7 +65,8 @@ private fun castRay(orig: Vect3, dir: Vect3, sphere: Sphere): Color {
     return if (!sphere.rayIntersect(orig, dir)) {
         backgroundColor
     } else {
-        Color(0.4F, 0.4F, 0.3F)
+//        Color(0.4F, 0.4F, 0.3F)
+        Color(1F, 0.0F, 0.0F)
     }
 }
 
