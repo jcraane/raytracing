@@ -1,7 +1,6 @@
 package nl.jamiecraane.raytracing
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Test
 
 class Vect3Test {
@@ -54,5 +53,16 @@ class Vect3Test {
         assertEquals(0.48F, n.x, 0.01F)
         assertEquals(0.81F, n.y, 0.01F)
         assertEquals(0.32F, n.z, 0.01F)
+    }
+
+    @Test
+    fun angle() {
+        assertEquals(85.2F, Vect3(6F, -2F, -3F).angleBetween(Vect3(1F, 1F, 1F)), 0.1F)
+    }
+
+    @Test
+    fun isOrthogonal() {
+        assertTrue(Vect3(2F, 4F).isOrthogonalTo(Vect3(4F, -2F)))
+        assertFalse(Vect3(2F, 4F).isOrthogonalTo(Vect3(1F, -2F)))
     }
 }

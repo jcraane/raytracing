@@ -2,7 +2,10 @@ package nl.jamiecraane.raytracing
 
 import java.awt.Color
 
-class Sphere(val center: Vect3, val radius: Float, val color: Color) {
+/**
+ * Represents a sphere with a center and a radius. The default color is Color.BLACK.
+ */
+data class Sphere(val center: Vect3, val radius: Float, val color: Color = Color.BLACK) {
     fun rayIntersect(orig: Vect3, dir: Vect3): Boolean {
         val diameter = radius * radius
         val L = center - orig

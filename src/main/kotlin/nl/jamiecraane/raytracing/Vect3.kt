@@ -6,7 +6,6 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
     infix operator fun minus(other: Vect3) = Vect3(x - other.x, y - other.y, z - other.z)
 
     fun dotProduct(other: Vect3) = (this.x * other.x) + (this.y * other.y) + (this.z * other.z)
-    infix operator fun times(other: Vect3) = dotProduct(other)
 
     fun crossProduct(other: Vect3): Vect3 {
         val cx = (y * other.z) - (z * other.y)
@@ -30,6 +29,13 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
         val m = magnitude()
         return Vect3((x / m).toFloat(), (y / m).toFloat(), (z / m).toFloat())
     }
+
+    fun angleBetween(other: Vect3): Float {
+        val radians = Math.acos((this.dotProduct(other)) / (magnitude() * other.magnitude()))
+        return Math.toDegrees(radians).toFloat()
+    }
+
+    fun isOrthogonalTo(other: Vect3) = this.dotProduct(other) == 0F
 
     override infix operator fun equals(other: Any?): Boolean {
         return if (other is Vect3) {
