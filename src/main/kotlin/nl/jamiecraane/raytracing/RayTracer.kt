@@ -12,7 +12,7 @@ fun main() {
             Sphere(Vect3(1.5F, -0.5F, -18F), 3F, redRubber),
             Sphere(Vect3(7F, 5F, -18F), 4F, ivory)
         ),
-        listOf(Light(Vect3(-20F, 20F, 20F), 1.5F))
+        listOf(Light(Vect3(-20F, 20F, 20F), 1F))
     )
 }
 
