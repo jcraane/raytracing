@@ -1,13 +1,6 @@
 package nl.jamiecraane.raytracing
 
-import com.sun.image.codec.jpeg.JPEGCodec
-import org.apache.commons.io.FileUtils
 import java.awt.Color
-import java.awt.Toolkit
-import java.awt.image.BufferedImage
-import java.awt.image.MemoryImageSource
-import java.io.ByteArrayOutputStream
-import java.io.File
 
 fun main() {
     val ivory = Material(Color(1F, 0F, 0F))
@@ -45,7 +38,7 @@ private fun render(spheres: List<Sphere>, lights: List<Light>) {
         }
     }
 
-    writeImageToDisk(pixels, "image.jpg")
+    RayTracedImage(width, height, pixels).writeImageToDisk("image.jpg")
 }
 
 private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List<Light>): Color {
@@ -87,17 +80,3 @@ private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): Inte
 
 class IntersectResult(val hit: Vect3? = null, val N: Vect3? = null, val material: Material, val intersect: Boolean)
 
-//todo minimize JPEG compression
-private fun writeImageToDisk(pixels: IntArray, fileName: String) {
-    val source = MemoryImageSource(width, height, pixels, 0, width)
-    val bi = BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR)
-    val graphics = bi.createGraphics()
-    val image = Toolkit.getDefaultToolkit().createImage(source)
-    graphics.drawImage(image, 0, 0, null)
-
-    ByteArrayOutputStream().use {
-        val encoder = JPEGCodec.createJPEGEncoder(it)
-        encoder.encode(bi)
-        FileUtils.writeByteArrayToFile(File(fileName), it.toByteArray())
-    }
-}
