@@ -1,8 +1,8 @@
 package nl.jamiecraane.raytracing
 
 import nl.jamiecraane.raytracing.output.ImageCanvas
+import nl.jamiecraane.raytracing.output.RawImage
 import nl.jamiecraane.raytracing.output.RayTracedImage
-import nl.jamiecraane.raytracing.output.toImage
 import java.awt.Color
 import javax.swing.JFrame
 
@@ -32,7 +32,7 @@ private fun renderStaticImage(
         )
     )
 
-    RayTracedImage(width, height, pixels).writeImageToFile("image.jpg")
+    RayTracedImage(width, height, RawImage(pixels, width, height)).writeImageToFile("image.jpg")
 }
 
 private fun animationTest(ivory: Material) {
@@ -51,14 +51,14 @@ private fun animationTest(ivory: Material) {
                 Sphere(Vect3(7F, 5F, -18F), 4F, ivory)
             ),
             listOf(
-                Light(Vect3(-30F, 20F, 20F), 1.5F),
+                Light(Vect3(-lightX, 20F, 20F), 1.5F),
                 Light(Vect3(30F, 50F, -25F), 1.8F),
                 Light(Vect3(30F, 20F, 30F), 1.7F)
             )
         )
-        imageCanvas.image = pixels.toImage(width, height)
+        imageCanvas.image = RawImage(pixels, width, height).image
         imageCanvas.repaint()
-        lightX += 1.5F
+        lightX += 1F
     }
 }
 

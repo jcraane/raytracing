@@ -10,13 +10,11 @@ import javax.imageio.ImageTypeSpecifier
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam
 import javax.imageio.stream.ImageOutputStream
 
-class RayTracedImage(private val width: Int, private val height: Int, private val pixels: IntArray) {
+class RayTracedImage(private val width: Int, private val height: Int, private val rawImage: RawImage) {
     fun writeImageToFile(fileName: String) {
         val imageWriter = ImageIO.getImageWritersByFormatName("jpg").next() as (JPEGImageWriter)
-        val bufferedImage = pixels.toBufferedImage(width, height)
-
         ImageIO.createImageOutputStream(FileOutputStream(File(fileName))).use {
-            writeImageToDisk(imageWriter, it, bufferedImage)
+            writeImageToDisk(imageWriter, it, rawImage.bufferedImage)
         }
     }
 
