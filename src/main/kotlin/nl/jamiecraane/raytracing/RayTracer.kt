@@ -2,7 +2,6 @@ package nl.jamiecraane.raytracing
 
 import nl.jamiecraane.raytracing.output.ImageCanvas
 import nl.jamiecraane.raytracing.output.RawImage
-import nl.jamiecraane.raytracing.output.RayTracedImage
 import java.awt.Color
 import javax.swing.JFrame
 
@@ -32,16 +31,13 @@ private fun renderStaticImage(
         )
     )
 
-    RayTracedImage(width, height, RawImage(pixels, width, height)).writeImageToFile("image.jpg")
+    val imageCanvas = createJFrame()
+    imageCanvas.image = RawImage(pixels, width, height).image
+//    RayTracedImage(width, height, RawImage(pixels, width, height)).writeImageToFile("image.jpg")
 }
 
 private fun animationTest(ivory: Material) {
-    val frame = JFrame("RayTracer")
-    frame.setSize(width, height)
-    val imageCanvas = ImageCanvas()
-    frame.add(imageCanvas)
-    frame.isVisible = true
-    frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+    val imageCanvas = createJFrame()
 
     var lightX = -50F
     while (lightX < 60F) {
@@ -52,14 +48,23 @@ private fun animationTest(ivory: Material) {
             ),
             listOf(
                 Light(Vect3(-lightX, 20F, 20F), 1.5F),
-                Light(Vect3(30F, 50F, -25F), 1.8F),
-                Light(Vect3(30F, 20F, 30F), 1.7F)
+                Light(Vect3(30F, 50F, -25F), 1.8F)/*,
+                Light(Vect3(30F, 20F, 30F), 1.7F)*/
             )
         )
         imageCanvas.image = RawImage(pixels, width, height).image
-        imageCanvas.repaint()
         lightX += 1F
     }
+}
+
+private fun createJFrame(): ImageCanvas {
+    val frame = JFrame("RayTracer")
+    frame.setSize(width, height)
+    val imageCanvas = ImageCanvas()
+    frame.add(imageCanvas)
+    frame.isVisible = true
+    frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+    return imageCanvas
 }
 
 private const val width = 1024
