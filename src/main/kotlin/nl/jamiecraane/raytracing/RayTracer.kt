@@ -1,5 +1,8 @@
 package nl.jamiecraane.raytracing
 
+import nl.jamiecraane.raytracing.lights.DiffuseLightReflector
+import nl.jamiecraane.raytracing.lights.Light
+import nl.jamiecraane.raytracing.lights.SpecularLightReflector
 import nl.jamiecraane.raytracing.output.ImageCanvas
 import nl.jamiecraane.raytracing.output.RawImage
 import nl.jamiecraane.raytracing.util.StopWatch
@@ -104,57 +107,50 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
     return if (!result.intersect) {
         backgroundColor
     } else {
-        if (result.hit != null && result.N != null) {
+        if (result.hit != null && result.normalVector != null) {
             var diffuseLightIntensity = 0F
             var specularLightIntensity = 0F
             for (light in lights) {
                 val lightDir = (light.position - result.hit).normalize()
-                diffuseLightIntensity += light.intensity * Math.max(0F, lightDir.dotProduct(result.N))
-                specularLightIntensity += (Math.pow(
-                    Math.max(
-                        0F,
-                        reflect(-lightDir, result.N).dotProduct(dir)
-                    ).toDouble(), result.material.specularComponent.toDouble()
-                ) * light.intensity).toFloat()
+                diffuseLightIntensity += DiffuseLightReflector.calculateIntensity(lightDir, result.normalVector, light)
+                specularLightIntensity += SpecularLightReflector.calculateIntensity(
+                    lightDir,
+                    result.normalVector,
+                    dir,
+                    light,
+                    result.material
+                )
             }
 
-            //        todo move light calculations to separate classes
-            val colors = result.material.diffuseColor.getColorComponents(FloatArray(4))
-            val r =
-                colors[0] * diffuseLightIntensity * result.material.albedo.x + specularLightIntensity * result.material.albedo.y
-            val g =
-                colors[1] * diffuseLightIntensity * result.material.albedo.x + specularLightIntensity * result.material.albedo.y
-            val b =
-                colors[2] * diffuseLightIntensity * result.material.albedo.x + specularLightIntensity * result.material.albedo.y
-            return Color(Math.min(1F, r), Math.min(1F, g), Math.min(1F, b))
+            return result.material.applyLightIntensity(diffuseLightIntensity, specularLightIntensity)
         } else {
             return backgroundColor
         }
     }
 }
 
-//todo move to different actions (encapsulate them)
-private fun reflect(I: Vect3, N: Vect3): Vect3 {
-    return I - (N.scale(2F).crossProduct(I.crossProduct(N)))
-}
-
 private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): IntersectResult {
     var sphereDist = Float.MAX_VALUE
     var material = Material(diffuseColor = Color.BLACK, specularComponent = 0F)
     var hitPoint: Vect3? = null
-    var N: Vect3? = null
+    var normalVector: Vect3? = null
     for (sphere in spheres) {
         val (intersect, distance) = sphere.rayIntersect(orig, dir)
         if (intersect && distance < sphereDist) {
             sphereDist = distance
             hitPoint = orig + dir.scale(distance)
-            N = (hitPoint - sphere.center).normalize()
+            normalVector = (hitPoint - sphere.center).normalize()
             material = sphere.material
         }
     }
 
-    return IntersectResult(hitPoint, N, material, sphereDist < 1000)
+    return IntersectResult(hitPoint, normalVector, material, sphereDist < 1000)
 }
 
-class IntersectResult(val hit: Vect3? = null, val N: Vect3? = null, val material: Material, val intersect: Boolean)
+class IntersectResult(
+    val hit: Vect3? = null,
+    val normalVector: Vect3? = null,
+    val material: Material,
+    val intersect: Boolean
+)
 
