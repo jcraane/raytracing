@@ -2,6 +2,7 @@ package nl.jamiecraane.raytracing
 
 import nl.jamiecraane.raytracing.output.ImageCanvas
 import nl.jamiecraane.raytracing.output.RawImage
+import nl.jamiecraane.raytracing.util.StopWatch
 import java.awt.Color
 import javax.swing.JFrame
 
@@ -69,28 +70,31 @@ private fun createJFrame(): ImageCanvas {
 
 private const val width = 1024
 private const val height = 768
-private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
+//private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
+private val backgroundColor = Color.BLACK
 private const val fov = Math.PI / 3.0
+// Convenience for now. Replace global data structure with proper encapsulation.
 
-private fun render(spheres: List<Sphere>, lights: List<Light>) : IntArray {
+private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
     val size = width * height
     val pixels = IntArray(size)
 
 //    todo create a parallel render loop
-//    val start = System.currentTimeMillis()
-    for (j in 0 until height) {
-        for (i in 0 until width) {
-            val index = i + j * width
-            val x: Float = (i + 0.5F) - (width / 2)
-            val y: Float = -(j + 0.5F) + (height / 2)
-            val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
-            val dir = Vect3(x, y, z).normalize()
-            val orig = Vect3(0F, 0F, 0F)
-            pixels[index] = castRay(orig, dir, spheres, lights).rgb
+//    todo visualize rays. Should be drawn in 3d.
+    val executionTime = StopWatch.timeIt {
+        for (j in 0 until height) {
+            for (i in 0 until width) {
+                val index = i + j * width
+                val x: Float = (i + 0.5F) - (width / 2)
+                val y: Float = -(j + 0.5F) + (height / 2)
+                val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
+                val dir = Vect3(x, y, z).normalize()
+                val orig = Vect3(0F, 0F, 0F)
+                pixels[index] = castRay(orig, dir, spheres, lights).rgb
+            }
         }
     }
-//    val end = System.currentTimeMillis() - start
-//    println("$end")
+    println(executionTime.toMillis())
 
     return pixels
 }
@@ -100,10 +104,10 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
     return if (!result.intersect) {
         backgroundColor
     } else {
-        var diffuseLightIntensity = 0F
-        var specularLightIntensity = 0F
-        for (light in lights) {
-            if (result.hit != null && result.N != null) {
+        if (result.hit != null && result.N != null) {
+            var diffuseLightIntensity = 0F
+            var specularLightIntensity = 0F
+            for (light in lights) {
                 val lightDir = (light.position - result.hit).normalize()
                 diffuseLightIntensity += light.intensity * Math.max(0F, lightDir.dotProduct(result.N))
                 specularLightIntensity += (Math.pow(
@@ -113,19 +117,23 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
                     ).toDouble(), result.material.specularComponent.toDouble()
                 ) * light.intensity).toFloat()
             }
-        }
 
-        val colors = result.material.diffuseColor.getColorComponents(FloatArray(4))
-        val r =
-            colors[0] * diffuseLightIntensity * result.material.albedo.x + specularLightIntensity * result.material.albedo.y
-        val g =
-            colors[1] * diffuseLightIntensity * result.material.albedo.x + specularLightIntensity * result.material.albedo.y
-        val b =
-            colors[2] * diffuseLightIntensity * result.material.albedo.x + specularLightIntensity * result.material.albedo.y
-        Color(Math.min(1F, r), Math.min(1F, g), Math.min(1F, b))
+            //        todo move light calculations to separate classes
+            val colors = result.material.diffuseColor.getColorComponents(FloatArray(4))
+            val r =
+                colors[0] * diffuseLightIntensity * result.material.albedo.x + specularLightIntensity * result.material.albedo.y
+            val g =
+                colors[1] * diffuseLightIntensity * result.material.albedo.x + specularLightIntensity * result.material.albedo.y
+            val b =
+                colors[2] * diffuseLightIntensity * result.material.albedo.x + specularLightIntensity * result.material.albedo.y
+            return Color(Math.min(1F, r), Math.min(1F, g), Math.min(1F, b))
+        } else {
+            return backgroundColor
+        }
     }
 }
 
+//todo move to different actions (encapsulate them)
 private fun reflect(I: Vect3, N: Vect3): Vect3 {
     return I - (N.scale(2F).crossProduct(I.crossProduct(N)))
 }
@@ -133,19 +141,19 @@ private fun reflect(I: Vect3, N: Vect3): Vect3 {
 private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): IntersectResult {
     var sphereDist = Float.MAX_VALUE
     var material = Material(diffuseColor = Color.BLACK, specularComponent = 0F)
-    var hit: Vect3? = null
+    var hitPoint: Vect3? = null
     var N: Vect3? = null
     for (sphere in spheres) {
         val (intersect, distance) = sphere.rayIntersect(orig, dir)
         if (intersect && distance < sphereDist) {
             sphereDist = distance
-            hit = orig + dir.scale(distance)
-            N = (hit - sphere.center).normalize()
+            hitPoint = orig + dir.scale(distance)
+            N = (hitPoint - sphere.center).normalize()
             material = sphere.material
         }
     }
 
-    return IntersectResult(hit, N, material, sphereDist < 1000)
+    return IntersectResult(hitPoint, N, material, sphereDist < 1000)
 }
 
 class IntersectResult(val hit: Vect3? = null, val N: Vect3? = null, val material: Material, val intersect: Boolean)

@@ -6,10 +6,10 @@ import java.awt.geom.AffineTransform
 
 class ImageCanvas() : BlankCanvas() {
     var image: Image? = null
-    set(value) {
-        field = value
-        repaint()
-    }
+        set(value) {
+            field = value
+            repaint()
+        }
 
     override fun doPaint(graphics2D: Graphics2D, oldTransform: AffineTransform) {
         image?.let { graphics2D.drawImage(it, 0, 0, null) }
