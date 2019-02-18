@@ -112,20 +112,35 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
             var specularLightIntensity = 0F
             for (light in lights) {
                 val lightDir = (light.position - result.hit).normalize()
-                diffuseLightIntensity += DiffuseLightReflector.calculateIntensity(lightDir, result.normalVector, light)
-                specularLightIntensity += SpecularLightReflector.calculateIntensity(
-                    lightDir,
-                    result.normalVector,
-                    dir,
-                    light,
-                    result.material
-                )
+
+                val shadowOrigin = isPointInShadowOfLights(lightDir, result.normalVector, result.hit)
+                val shadowResult = sceneIntersect(shadowOrigin, lightDir, spheres)
+                if (!shadowResult.intersect) {
+                    diffuseLightIntensity += DiffuseLightReflector.calculateIntensity(
+                        lightDir, result.normalVector, light
+                    )
+                    specularLightIntensity += SpecularLightReflector.calculateIntensity(
+                        lightDir, result.normalVector, dir, light, result.material
+                    )
+                }
             }
 
             return result.material.applyLightIntensity(diffuseLightIntensity, specularLightIntensity)
         } else {
             return backgroundColor
         }
+    }
+}
+
+private fun isPointInShadowOfLights(
+    lightDir: Vect3,
+    normalVector: Vect3,
+    hit: Vect3
+): Vect3 {
+    return if (lightDir.dotProduct(normalVector) < 0) {
+        hit - normalVector
+    } else {
+        hit + normalVector
     }
 }
 
