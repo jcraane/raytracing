@@ -2,6 +2,7 @@ package nl.jamiecraane.raytracing
 
 import nl.jamiecraane.raytracing.lights.DiffuseLightReflector
 import nl.jamiecraane.raytracing.lights.Light
+import nl.jamiecraane.raytracing.lights.Reflector
 import nl.jamiecraane.raytracing.lights.SpecularLightReflector
 import nl.jamiecraane.raytracing.output.ImageCanvas
 import nl.jamiecraane.raytracing.output.RawImage
@@ -10,23 +11,26 @@ import java.awt.Color
 import javax.swing.JFrame
 
 fun main() {
-    val ivory = Material(Vect3(0.6F, 0.3F), Color(0.4F, 0.4F, 0.3F), 50F)
+    val ivory = Material(Vect3(0.6F, 0.3F, 0.1F), Color(0.4F, 0.4F, 0.3F), 50F)
     val redRubber = Material(Vect3(0.9F, 0.1F), Color(0.3F, 0.1F, 0.1F), 10F)
+    val mirror = Material(Vect3(0.0F, 10.0F, 0.8F), Color(1.0F, 1.0F, 1.0F), 1425F)
 
-    renderStaticImage(ivory, redRubber)
+    renderStaticImage(ivory, redRubber, mirror)
 //    animationTest(ivory)
 }
 
 private fun renderStaticImage(
     ivory: Material,
-    redRubber: Material
+    redRubber: Material,
+    mirror: Material
 ) {
     val pixels = render(
         listOf(
             Sphere(Vect3(-3F, 0F, -16F), 2F, ivory),
-            Sphere(Vect3(-1F, -1.5F, -12F), 2F, redRubber),
+//            Sphere(Vect3(-1F, -1.5F, -12F), 2F, redRubber),
+            Sphere(Vect3(-1F, -1.5F, -12F), 2F, mirror),
             Sphere(Vect3(1.5F, -0.5F, -18F), 3F, redRubber),
-            Sphere(Vect3(7F, 5F, -18F), 4F, ivory)
+            Sphere(Vect3(7F, 5F, -18F), 4F, mirror)
         ),
         listOf(
             Light(Vect3(-20F, 20F, 20F), 1.5F),
@@ -73,9 +77,9 @@ private fun createJFrame(): ImageCanvas {
 
 private const val width = 1024
 private const val height = 768
-//private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
-private val backgroundColor = Color.BLACK
+private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
 private const val fov = Math.PI / 3.0
+private const val recursionDepth = 4
 // Convenience for now. Replace global data structure with proper encapsulation.
 
 private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
@@ -93,7 +97,7 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
                 val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
                 val dir = Vect3(x, y, z).normalize()
                 val orig = Vect3(0F, 0F, 0F)
-                pixels[index] = castRay(orig, dir, spheres, lights).rgb
+                pixels[index] = castRay(orig, dir, spheres, lights, 0).rgb
             }
         }
     }
@@ -102,12 +106,17 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
     return pixels
 }
 
-private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List<Light>): Color {
+private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List<Light>, depth: Int): Color {
     val result = sceneIntersect(orig, dir, spheres)
-    return if (!result.intersect) {
+
+    return if (depth > recursionDepth || !result.intersect) {
         backgroundColor
     } else {
         if (result.hit != null && result.normalVector != null) {
+            val reflectDir = Reflector.reflect(dir, result.normalVector).normalize()
+            val reflectOrig = if (reflectDir.dotProduct(result.normalVector) < 0) {result.hit - result.normalVector.scale(0.001F)} else {result.hit + result.normalVector.scale(0.001F)}
+            val reflectColor = castRay(reflectOrig, reflectDir, spheres, lights, depth + 1)
+
             var diffuseLightIntensity = 0F
             var specularLightIntensity = 0F
             for (light in lights) {
@@ -122,10 +131,11 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
                     specularLightIntensity += SpecularLightReflector.calculateIntensity(
                         lightDir, result.normalVector, dir, light, result.material
                     )
+//                    println(specularLightIntensity)
                 }
             }
 
-            return result.material.applyLightIntensity(diffuseLightIntensity, specularLightIntensity)
+            return result.material.applyLightIntensity(diffuseLightIntensity, specularLightIntensity, reflectColor)
         } else {
             return backgroundColor
         }
