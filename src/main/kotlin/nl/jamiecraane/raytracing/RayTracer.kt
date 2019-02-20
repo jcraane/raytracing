@@ -131,7 +131,6 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
                     specularLightIntensity += SpecularLightReflector.calculateIntensity(
                         lightDir, result.normalVector, dir, light, result.material
                     )
-//                    println(specularLightIntensity)
                 }
             }
 

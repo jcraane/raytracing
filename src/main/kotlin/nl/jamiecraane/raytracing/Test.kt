@@ -1,7 +1,5 @@
 package nl.jamiecraane.raytracing
 
-import nl.jamiecraane.raytracing.lights.SpecularLightReflector
-
 fun main() {
     /*val sphere = Sphere(Vect3(4F, 4F), 1F, Material(diffuseColor =  Color.BLACK))
     val orig = Vect3(2F, 1.5F)
@@ -22,11 +20,4 @@ fun main() {
     val puv = vnorm.scale(dp)
     println("Vector puv = $puv")
     println("Lenght of puv = ${puv.magnitude()}")*/
-
-
-//    todo this is not correct yet. See where the problem is.
-    val dir = Vect3(0.337570012F, 0.434018552F, -0.835269093F)
-    val N = Vect3(-0.178841934F, 0.770059525F, 0.612392008F)
-    val reflected = SpecularLightReflector.reflect(dir, N)
-    println(reflected)
 }

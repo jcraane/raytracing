@@ -11,16 +11,11 @@ object SpecularLightReflector {
         light: Light,
         material: Material
     ): Float {
-//        todo the parameters to reflect are not correct yet.
         return (Math.pow(
             Math.max(
                 0F,
-                reflect(-lightDirection, normalVector).dotProduct(rayDirection)
+                Reflector.reflect(lightDirection, normalVector).dotProduct(rayDirection)
             ).toDouble(), material.specularComponent.toDouble()
         ) * light.intensity).toFloat()
-    }
-
-    fun reflect(I: Vect3, N: Vect3): Vect3 {
-        return I - (N.scale(2F).crossProduct(I.crossProduct(N)))
     }
 }
