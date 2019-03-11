@@ -1,5 +1,8 @@
 package nl.jamiecraane.raytracing.material
 
+import nl.jamiecraane.raytracing.extensions.component1
+import nl.jamiecraane.raytracing.extensions.component2
+import nl.jamiecraane.raytracing.extensions.component3
 import java.awt.Color
 
 /**
@@ -14,15 +17,17 @@ class Material(private val albedo: Albedo = Albedo(1F), val diffuseColor: Color,
         reflectColor: Color,
         refractColor: Color
     ): Color {
-        val colors = diffuseColor.getColorComponents(FloatArray(4))
-        val reflectColors = reflectColor.getColorComponents(FloatArray(4))
-        val refractColors = refractColor.getColorComponents(FloatArray(4))
+        val (color_r, color_g, color_b) = diffuseColor
+        val (reflect_r, reflect_g, reflect_b) = reflectColor
+        val (refract_r, refract_g, refract_b) = refractColor
+
         val r =
-            colors[0] * diffuseLightIntensity * albedo.a + specularLightIntensity * albedo.b + (reflectColors[0] * albedo.c) + (refractColors[0] * albedo.d)
+            color_r * diffuseLightIntensity * albedo.a + specularLightIntensity * albedo.b + (reflect_r * albedo.c) + (refract_r * albedo.d)
         val g =
-            colors[1] * diffuseLightIntensity * albedo.a + specularLightIntensity * albedo.b + (reflectColors[1] * albedo.c) + (refractColors[1] * albedo.d)
+            color_g * diffuseLightIntensity * albedo.a + specularLightIntensity * albedo.b + (reflect_g * albedo.c) + (refract_g * albedo.d)
         val b =
-            colors[2] * diffuseLightIntensity * albedo.a + specularLightIntensity * albedo.b + (reflectColors[2] * albedo.c) + (refractColors[2] * albedo.d)
+            color_b * diffuseLightIntensity * albedo.a + specularLightIntensity * albedo.b + (reflect_b * albedo.c) + (refract_b * albedo.d)
         return Color(Math.min(1F, r), Math.min(1F, g), Math.min(1F, b))
     }
 }
+
