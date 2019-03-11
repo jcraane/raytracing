@@ -115,12 +115,10 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
         if (result.hit != null && result.normalVector != null) {
             val reflectDir = Reflector.reflect(dir, result.normalVector).normalize()
             val reflectOrig = if (reflectDir.dotProduct(result.normalVector) < 0) {result.hit - result.normalVector.scale(0.001F)} else {result.hit + result.normalVector.scale(0.001F)}
-//            val reflectColor = backgroundColor
             val reflectColor = castRay(reflectOrig, reflectDir, spheres, lights, depth + 1)
 
             val refractDir = Refractor.refract(dir, result.normalVector, result.material.refractiveIndex).normalize()
             val refractOrig = if (refractDir.dotProduct(result.normalVector) < 0) {result.hit - result.normalVector.scale(0.001F)} else {result.hit + result.normalVector.scale(0.001F)}
-//            val refractColor = backgroundColor
             val refractColor = castRay(refractOrig, refractDir, spheres, lights, depth + 1)
 
             var diffuseLightIntensity = 0F
@@ -167,7 +165,6 @@ private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): Inte
     for (sphere in spheres) {
         val (intersect, distance) = sphere.rayIntersect(orig, dir)
         if (intersect && distance < sphereDist) {
-//            println("RAY INTERSECT")
             sphereDist = distance
             hitPoint = orig + dir.scale(distance)
             normalVector = (hitPoint - sphere.center).normalize()
