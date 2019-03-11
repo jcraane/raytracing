@@ -1,7 +1,7 @@
 package nl.jamiecraane.raytracing.lights
 
-import nl.jamiecraane.raytracing.Material
 import nl.jamiecraane.raytracing.Vect3
+import nl.jamiecraane.raytracing.material.Material
 
 object SpecularLightReflector {
     fun calculateIntensity(

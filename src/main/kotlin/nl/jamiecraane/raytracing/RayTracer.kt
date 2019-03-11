@@ -1,9 +1,8 @@
 package nl.jamiecraane.raytracing
 
-import nl.jamiecraane.raytracing.lights.DiffuseLightReflector
-import nl.jamiecraane.raytracing.lights.Light
-import nl.jamiecraane.raytracing.lights.Reflector
-import nl.jamiecraane.raytracing.lights.SpecularLightReflector
+import nl.jamiecraane.raytracing.lights.*
+import nl.jamiecraane.raytracing.material.Albedo
+import nl.jamiecraane.raytracing.material.Material
 import nl.jamiecraane.raytracing.output.ImageCanvas
 import nl.jamiecraane.raytracing.output.RawImage
 import nl.jamiecraane.raytracing.util.StopWatch
@@ -11,24 +10,25 @@ import java.awt.Color
 import javax.swing.JFrame
 
 fun main() {
-    val ivory = Material(Vect3(0.6F, 0.3F, 0.1F), Color(0.4F, 0.4F, 0.3F), 50F)
-    val redRubber = Material(Vect3(0.9F, 0.1F), Color(0.3F, 0.1F, 0.1F), 10F)
-    val mirror = Material(Vect3(0.0F, 10.0F, 0.8F), Color(1.0F, 1.0F, 1.0F), 1425F)
+    val ivory = Material(Albedo(0.6F, 0.3F, 0.1F), Color(0.4F, 0.4F, 0.3F), 50F)
+    val redRubber = Material(Albedo(0.9F, 0.1F), Color(0.3F, 0.1F, 0.1F), 10F)
+    val mirror = Material(Albedo(0.0F, 10.0F, 0.8F), Color(1.0F, 1.0F, 1.0F), 1425F)
+    val glass = Material(Albedo(0.0F, 0.5F, 0.1F, 0.8F), Color(0.6F, 0.7F, 0.8F), 125F, 1.5F)
 
-    renderStaticImage(ivory, redRubber, mirror)
+    renderStaticImage(ivory, redRubber, mirror, glass)
 //    animationTest(ivory)
 }
 
 private fun renderStaticImage(
     ivory: Material,
     redRubber: Material,
-    mirror: Material
+    mirror: Material,
+    glass: Material
 ) {
     val pixels = render(
         listOf(
             Sphere(Vect3(-3F, 0F, -16F), 2F, ivory),
-//            Sphere(Vect3(-1F, -1.5F, -12F), 2F, redRubber),
-            Sphere(Vect3(-1F, -1.5F, -12F), 2F, mirror),
+            Sphere(Vect3(-1F, -1.5F, -12F), 2F, glass),
             Sphere(Vect3(1.5F, -0.5F, -18F), 3F, redRubber),
             Sphere(Vect3(7F, 5F, -18F), 4F, mirror)
         ),
@@ -92,8 +92,8 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
         for (j in 0 until height) {
             for (i in 0 until width) {
                 val index = i + j * width
-                val x: Float = (i + 0.5F) - (width / 2)
-                val y: Float = -(j + 0.5F) + (height / 2)
+                val x: Float = (i + 0.5F) - (width / 2F)
+                val y: Float = -(j + 0.5F) + (height / 2F)
                 val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
                 val dir = Vect3(x, y, z).normalize()
                 val orig = Vect3(0F, 0F, 0F)
@@ -115,7 +115,13 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
         if (result.hit != null && result.normalVector != null) {
             val reflectDir = Reflector.reflect(dir, result.normalVector).normalize()
             val reflectOrig = if (reflectDir.dotProduct(result.normalVector) < 0) {result.hit - result.normalVector.scale(0.001F)} else {result.hit + result.normalVector.scale(0.001F)}
+//            val reflectColor = backgroundColor
             val reflectColor = castRay(reflectOrig, reflectDir, spheres, lights, depth + 1)
+
+            val refractDir = Refractor.refract(dir, result.normalVector, result.material.refractiveIndex).normalize()
+            val refractOrig = if (refractDir.dotProduct(result.normalVector) < 0) {result.hit - result.normalVector.scale(0.001F)} else {result.hit + result.normalVector.scale(0.001F)}
+//            val refractColor = backgroundColor
+            val refractColor = castRay(refractOrig, refractDir, spheres, lights, depth + 1)
 
             var diffuseLightIntensity = 0F
             var specularLightIntensity = 0F
@@ -134,7 +140,7 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
                 }
             }
 
-            return result.material.applyLightIntensity(diffuseLightIntensity, specularLightIntensity, reflectColor)
+            return result.material.applyLightIntensity(diffuseLightIntensity, specularLightIntensity, reflectColor, refractColor)
         } else {
             return backgroundColor
         }
@@ -147,9 +153,9 @@ private fun isPointInShadowOfLights(
     hit: Vect3
 ): Vect3 {
     return if (lightDir.dotProduct(normalVector) < 0) {
-        hit - normalVector
+        hit - normalVector.scale(0.001F)
     } else {
-        hit + normalVector
+        hit + normalVector.scale(0.001F)
     }
 }
 
@@ -161,6 +167,7 @@ private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): Inte
     for (sphere in spheres) {
         val (intersect, distance) = sphere.rayIntersect(orig, dir)
         if (intersect && distance < sphereDist) {
+//            println("RAY INTERSECT")
             sphereDist = distance
             hitPoint = orig + dir.scale(distance)
             normalVector = (hitPoint - sphere.center).normalize()
