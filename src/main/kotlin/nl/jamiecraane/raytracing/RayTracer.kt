@@ -1,5 +1,9 @@
 package nl.jamiecraane.raytracing
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import nl.jamiecraane.raytracing.lights.*
 import nl.jamiecraane.raytracing.material.Albedo
 import nl.jamiecraane.raytracing.material.Material
@@ -19,6 +23,7 @@ fun main() {
 //    animationTest(ivory)
 }
 
+//todo create an interesting scene with lots of objects.
 private fun renderStaticImage(
     ivory: Material,
     redRubber: Material,
@@ -86,22 +91,27 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
     val size = width * height
     val pixels = IntArray(size)
 
-//    todo create a parallel render loop
 //    todo visualize rays. Should be drawn in 3d.
-    val executionTime = StopWatch.timeIt {
-        for (j in 0 until height) {
-            for (i in 0 until width) {
-                val index = i + j * width
-                val x: Float = (i + 0.5F) - (width / 2F)
-                val y: Float = -(j + 0.5F) + (height / 2F)
-                val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
-                val dir = Vect3(x, y, z).normalize()
-                val orig = Vect3(0F, 0F, 0F)
-                pixels[index] = castRay(orig, dir, spheres, lights, 0).rgb
+
+    val dispatcher = Dispatchers.Default
+    runBlocking {
+        val executionTime = StopWatch.timeIt {
+            for (j in 0 until height) {
+                for (i in 0 until width) {
+                    GlobalScope.launch(dispatcher) {
+                        val index = i + j * width
+                        val x: Float = (i + 0.5F) - (width / 2F)
+                        val y: Float = -(j + 0.5F) + (height / 2F)
+                        val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
+                        val dir = Vect3(x, y, z).normalize()
+                        val orig = Vect3(0F, 0F, 0F)
+                        pixels[index] = castRay(orig, dir, spheres, lights, 0).rgb
+                    }
+                }
             }
         }
+        println(executionTime.toMillis())
     }
-    println(executionTime.toMillis())
 
     return pixels
 }
@@ -171,6 +181,8 @@ private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): Inte
             material = sphere.material
         }
     }
+
+//    todo add checkerboard.
 
     return IntersectResult(hitPoint, normalVector, material, sphereDist < 1000)
 }
