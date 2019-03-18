@@ -8,18 +8,25 @@ import nl.jamiecraane.raytracing.material.Material
 class Sphere(val center: Vect3, radius: Float, val material: Material) {
     private val diameter = radius * radius
     /**
+     * @see https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
      * @param dirNormalized Normalized direction vector
      * @return Pair<Boolean, Float> Pair containing a boolean which indicates if the ray intersected with the sphere and a float which is the distance of the sphere to the ray.
      */
     fun rayIntersect(origin: Vect3, dirNormalized: Vect3): Pair<Boolean, Float> {
-        val vOriginToCenter = center - origin
-        val scalarOriginDir : Float = vOriginToCenter.dotProduct(dirNormalized)
-        val distanceCenterToRay : Float = (vOriginToCenter.dotProduct(vOriginToCenter) - (scalarOriginDir * scalarOriginDir))
-        if (distanceCenterToRay > diameter) return false to 0F
-        // Simple Pythagorean (a^2 + b^2 = c^2) to calculate the distance between = a^2 = c^2 - b^2 (c^2 = diameter and b^2 = distanceCenterToRay
-        val a : Float = Math.sqrt((diameter - distanceCenterToRay).toDouble()).toFloat()
-        var t0 : Float = scalarOriginDir - a
-        val t1 : Float = scalarOriginDir + a
+        val L = center - origin
+        val tca : Float = L.dotProduct(dirNormalized)
+        if (tca < 0) {
+            return false to 0F
+        }
+        // (a^2 + b^2 = c^2)
+        val c2 = L.dotProduct(L)
+        val b2 = tca * tca
+        // d = a^2
+        val d = Math.sqrt((c2 - b2).toDouble())
+        val thc = Math.sqrt((diameter - (d*d)).toDouble()).toFloat()
+        if (thc > diameter) return false to 0F
+        var t0 : Float = tca - thc
+        val t1 : Float = tca + thc
         if (t0 < 0) {
             t0 = t1
         }
