@@ -19,6 +19,7 @@ import javax.swing.JFrame
 
 fun main() {
     renderStaticImage(simpleScene)
+//    renderStaticImage(complexScene)
 //    animationTest(ivory)
 }
 
@@ -37,27 +38,6 @@ private fun renderStaticImage(scene: Scene) {
 //    RayTracedImage(width, height, RawImage(pixels, width, height)).writeImageToFile("image.jpg")
 }
 
-private fun animationTest(ivory: Material) {
-    val imageCanvas = createJFrame()
-
-    /*var lightX = -50F
-    while (lightX < 60F) {
-        val pixels = render(
-            listOf(
-                Sphere(Vect3(-3F, 0F, -16F), 2F, ivory),
-                Sphere(Vect3(7F, 5F, -18F), 4F, ivory)
-            ),
-            listOf(
-                Light(Vect3(-lightX, 20F, 20F), 1.5F),
-                Light(Vect3(30F, 50F, -25F), 1.8F)*//*,
-                Light(Vect3(30F, 20F, 30F), 1.7F)*//*
-            )
-        )
-        imageCanvas.image = RawImage(pixels, width, height).image
-        lightX += 1F
-    }*/
-}
-
 private fun createJFrame(): ImageCanvas {
     val frame = JFrame("RayTracer")
     frame.setSize(width, height)
@@ -68,11 +48,11 @@ private fun createJFrame(): ImageCanvas {
     return imageCanvas
 }
 
-private const val width = 1024
-private const val height = 768
+private const val width = 1600
+private const val height = 1200
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
 private const val fov = Math.PI / 3.0
-private const val recursionDepth = 4
+private const val recursionDepth = 3
 // Convenience for now. Replace global data structure with proper encapsulation.
 
 private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
@@ -81,7 +61,7 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
 
 //    todo visualize rays. Should be drawn in 3d.
 
-    val dispatcher = Dispatchers.Default
+    val dispatcher = Dispatchers.Unconfined
     runBlocking {
         val executionTime = StopWatch.timeIt {
             for (j in 0 until height) {
