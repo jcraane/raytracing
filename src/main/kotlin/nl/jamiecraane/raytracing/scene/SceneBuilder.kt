@@ -1,7 +1,9 @@
-package nl.jamiecraane.raytracing
+package nl.jamiecraane.raytracing.scene
 
+import nl.jamiecraane.raytracing.buildingblocks.Vect3
 import nl.jamiecraane.raytracing.lights.Light
 import nl.jamiecraane.raytracing.material.Material
+import nl.jamiecraane.raytracing.objects.Sphere
 import java.awt.Color
 
 @DslMarker
@@ -19,12 +21,6 @@ class Scene {
         val sphere = Sphere(center, material)
         sphere.init()
         spheres.add(sphere)
-    }
-
-    fun material(diffuseColor: Color, init: Material.() -> Unit): Material {
-        val material = Material(diffuseColor)
-        material.init()
-        return material
     }
 
     fun light(position: Vect3, init: Light.() -> Unit) {
@@ -46,4 +42,13 @@ fun scene(init: Scene.() -> Unit): Scene {
     val scene = Scene()
     scene.init()
     return scene
+}
+
+/**
+ * Materials can be created outside of the scene scope.
+ */
+fun material(diffuseColor: Color, init: Material.() -> Unit): Material {
+    val material = Material(diffuseColor)
+    material.init()
+    return material
 }

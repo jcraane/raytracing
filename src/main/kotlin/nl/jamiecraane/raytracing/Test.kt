@@ -1,5 +1,7 @@
 package nl.jamiecraane.raytracing
 
+import nl.jamiecraane.raytracing.buildingblocks.Vect3
+
 fun main() {
 //    val one = Vect3(7F, 3F)
 //    val sphere = Sphere(Vect3(10F, 6F), 3F, Material(Albedo(0.6F, 0.3F, 0.1F), Color(0.4F, 0.4F, 0.3F), 50F))
@@ -7,7 +9,11 @@ fun main() {
 //    println(intersect)
 
     println(Vect3(1F, 1F).normalize())
-    println(Vect3(1F, 1F).normalize().dotProduct(Vect3(7F, 3F)))
+    println(
+        Vect3(
+            1F,
+            1F
+        ).normalize().dotProduct(Vect3(7F, 3F)))
     println((Vect3(7F, 3F).dotProduct(Vect3(1F, 1F))))
 
     val D = Vect3(7F, 3F)

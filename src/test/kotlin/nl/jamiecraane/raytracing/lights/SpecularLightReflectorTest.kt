@@ -1,6 +1,6 @@
 package nl.jamiecraane.raytracing.lights
 
-import nl.jamiecraane.raytracing.Vect3
+import nl.jamiecraane.raytracing.buildingblocks.Vect3
 import org.junit.Assert
 import org.junit.Test
 

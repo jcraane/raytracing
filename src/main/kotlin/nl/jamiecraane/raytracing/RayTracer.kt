@@ -4,57 +4,32 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import nl.jamiecraane.raytracing.buildingblocks.Vect3
 import nl.jamiecraane.raytracing.lights.*
-import nl.jamiecraane.raytracing.material.Albedo
 import nl.jamiecraane.raytracing.material.Material
+import nl.jamiecraane.raytracing.objects.Sphere
 import nl.jamiecraane.raytracing.output.ImageCanvas
 import nl.jamiecraane.raytracing.output.RawImage
+import nl.jamiecraane.raytracing.renderingsamples.simpleScene
+import nl.jamiecraane.raytracing.scene.Scene
+import nl.jamiecraane.raytracing.scene.scene
 import nl.jamiecraane.raytracing.util.StopWatch
 import java.awt.Color
 import javax.swing.JFrame
 
 fun main() {
-    renderStaticImage(createSimpleScene())
+    renderStaticImage(simpleScene)
 //    animationTest(ivory)
 }
 
-private fun createSimpleScene(): Scene {
-    return scene {
-        val ivory = material(Color(0.4F, 0.4F, 0.3F)) {
-            albedo = Albedo(0.6F, 0.3F, 0.1F)
-            specularComponent = 50F
-        }
+private fun createComplexScene() = scene {
 
-        val redRubber = material(Color(0.3F, 0.1F, 0.1F)) {
-            albedo = Albedo(0.9F, 0.1F)
-            specularComponent = 10F
-        }
-
-        val mirror = material(Color(1.0F, 1.0F, 1.0F)) {
-            albedo = Albedo(0.0F, 10.0F, 0.8F)
-            specularComponent = 1425F
-        }
-
-        val glass = material(Color(0.6F, 0.7F, 0.8F)) {
-            albedo = Albedo(0.0F, 0.5F, 0.1F, 0.8F)
-            specularComponent = 125F
-            refractiveIndex = 1.5F
-        }
-
-        sphere(center = Vect3(-3F, 0F, -16F), material = ivory) { radius = 2F }
-        sphere(center = Vect3(-1F, -1.5F, -12F), material = glass) { radius = 2F }
-        sphere(center = Vect3(1.5F, -0.5F, -18F), material = redRubber) { radius = 3F }
-        sphere(center = Vect3(7F, 5F, -18F), material = mirror) { radius = 4F }
-
-        light(Vect3(-20F, 20F, 20F)) { intensity = 1.5F }
-        light(Vect3(30F, 50F, -25F)) { intensity = 1.8F }
-        light(Vect3(30F, 20F, 30F)) { intensity = 1.7F }
-    }
 }
 
 //todo create an interesting scene with lots of objects.
 private fun renderStaticImage(scene: Scene) {
-    val pixels = render(scene.getSpheres(), scene.getLights()
+    val pixels = render(
+        scene.getSpheres(), scene.getLights()
     )
 
     val imageCanvas = createJFrame()

@@ -1,5 +1,7 @@
-package nl.jamiecraane.raytracing
+package nl.jamiecraane.raytracing.objects
 
+import nl.jamiecraane.raytracing.scene.SceneDsl
+import nl.jamiecraane.raytracing.buildingblocks.Vect3
 import nl.jamiecraane.raytracing.material.Material
 
 /**
