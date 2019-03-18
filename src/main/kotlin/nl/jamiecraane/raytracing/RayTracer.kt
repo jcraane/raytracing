@@ -14,34 +14,47 @@ import java.awt.Color
 import javax.swing.JFrame
 
 fun main() {
-    val ivory = Material(Albedo(0.6F, 0.3F, 0.1F), Color(0.4F, 0.4F, 0.3F), 50F)
-    val redRubber = Material(Albedo(0.9F, 0.1F), Color(0.3F, 0.1F, 0.1F), 10F)
-    val mirror = Material(Albedo(0.0F, 10.0F, 0.8F), Color(1.0F, 1.0F, 1.0F), 1425F)
-    val glass = Material(Albedo(0.0F, 0.5F, 0.1F, 0.8F), Color(0.6F, 0.7F, 0.8F), 125F, 1.5F)
-
-    renderStaticImage(ivory, redRubber, mirror, glass)
+    renderStaticImage(createSimpleScene())
 //    animationTest(ivory)
 }
 
+private fun createSimpleScene(): Scene {
+    return scene {
+        val ivory = material(Color(0.4F, 0.4F, 0.3F)) {
+            albedo = Albedo(0.6F, 0.3F, 0.1F)
+            specularComponent = 50F
+        }
+
+        val redRubber = material(Color(0.3F, 0.1F, 0.1F)) {
+            albedo = Albedo(0.9F, 0.1F)
+            specularComponent = 10F
+        }
+
+        val mirror = material(Color(1.0F, 1.0F, 1.0F)) {
+            albedo = Albedo(0.0F, 10.0F, 0.8F)
+            specularComponent = 1425F
+        }
+
+        val glass = material(Color(0.6F, 0.7F, 0.8F)) {
+            albedo = Albedo(0.0F, 0.5F, 0.1F, 0.8F)
+            specularComponent = 125F
+            refractiveIndex = 1.5F
+        }
+
+        sphere(center = Vect3(-3F, 0F, -16F), material = ivory) { radius = 2F }
+        sphere(center = Vect3(-1F, -1.5F, -12F), material = glass) { radius = 2F }
+        sphere(center = Vect3(1.5F, -0.5F, -18F), material = redRubber) { radius = 3F }
+        sphere(center = Vect3(7F, 5F, -18F), material = mirror) { radius = 4F }
+
+        light(Vect3(-20F, 20F, 20F)) { intensity = 1.5F }
+        light(Vect3(30F, 50F, -25F)) { intensity = 1.8F }
+        light(Vect3(30F, 20F, 30F)) { intensity = 1.7F }
+    }
+}
+
 //todo create an interesting scene with lots of objects.
-private fun renderStaticImage(
-    ivory: Material,
-    redRubber: Material,
-    mirror: Material,
-    glass: Material
-) {
-    val pixels = render(
-        listOf(
-            Sphere(Vect3(-3F, 0F, -16F), 2F, ivory),
-            Sphere(Vect3(-1F, -1.5F, -12F), 2F, glass),
-            Sphere(Vect3(1.5F, -0.5F, -18F), 3F, redRubber),
-            Sphere(Vect3(7F, 5F, -18F), 4F, mirror)
-        ),
-        listOf(
-            Light(Vect3(-20F, 20F, 20F), 1.5F),
-            Light(Vect3(30F, 50F, -25F), 1.8F),
-            Light(Vect3(30F, 20F, 30F), 1.7F)
-        )
+private fun renderStaticImage(scene: Scene) {
+    val pixels = render(scene.getSpheres(), scene.getLights()
     )
 
     val imageCanvas = createJFrame()
@@ -52,7 +65,7 @@ private fun renderStaticImage(
 private fun animationTest(ivory: Material) {
     val imageCanvas = createJFrame()
 
-    var lightX = -50F
+    /*var lightX = -50F
     while (lightX < 60F) {
         val pixels = render(
             listOf(
@@ -61,13 +74,13 @@ private fun animationTest(ivory: Material) {
             ),
             listOf(
                 Light(Vect3(-lightX, 20F, 20F), 1.5F),
-                Light(Vect3(30F, 50F, -25F), 1.8F)/*,
-                Light(Vect3(30F, 20F, 30F), 1.7F)*/
+                Light(Vect3(30F, 50F, -25F), 1.8F)*//*,
+                Light(Vect3(30F, 20F, 30F), 1.7F)*//*
             )
         )
         imageCanvas.image = RawImage(pixels, width, height).image
         lightX += 1F
-    }
+    }*/
 }
 
 private fun createJFrame(): ImageCanvas {
@@ -110,6 +123,7 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
                 }
             }
         }
+
         println(executionTime.toMillis())
     }
 
@@ -124,11 +138,19 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
     } else {
         if (result.hit != null && result.normalVector != null) {
             val reflectDir = Reflector.reflect(dir, result.normalVector).normalize()
-            val reflectOrig = if (reflectDir.dotProduct(result.normalVector) < 0) {result.hit - result.normalVector.scale(0.001F)} else {result.hit + result.normalVector.scale(0.001F)}
+            val reflectOrig = if (reflectDir.dotProduct(result.normalVector) < 0) {
+                result.hit - result.normalVector.scale(0.001F)
+            } else {
+                result.hit + result.normalVector.scale(0.001F)
+            }
             val reflectColor = castRay(reflectOrig, reflectDir, spheres, lights, depth + 1)
 
             val refractDir = Refractor.refract(dir, result.normalVector, result.material.refractiveIndex).normalize()
-            val refractOrig = if (refractDir.dotProduct(result.normalVector) < 0) {result.hit - result.normalVector.scale(0.001F)} else {result.hit + result.normalVector.scale(0.001F)}
+            val refractOrig = if (refractDir.dotProduct(result.normalVector) < 0) {
+                result.hit - result.normalVector.scale(0.001F)
+            } else {
+                result.hit + result.normalVector.scale(0.001F)
+            }
             val refractColor = castRay(refractOrig, refractDir, spheres, lights, depth + 1)
 
             var diffuseLightIntensity = 0F
@@ -148,7 +170,12 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
                 }
             }
 
-            return result.material.applyLightIntensity(diffuseLightIntensity, specularLightIntensity, reflectColor, refractColor)
+            return result.material.applyLightIntensity(
+                diffuseLightIntensity,
+                specularLightIntensity,
+                reflectColor,
+                refractColor
+            )
         } else {
             return backgroundColor
         }
@@ -169,7 +196,8 @@ private fun isPointInShadowOfLights(
 
 private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): IntersectResult {
     var sphereDist = Float.MAX_VALUE
-    var material = Material(diffuseColor = Color.BLACK, specularComponent = 0F)
+    var material = Material(diffuseColor = Color.BLACK)
+    material.specularComponent = 0F
     var hitPoint: Vect3? = null
     var normalVector: Vect3? = null
     for (sphere in spheres) {

@@ -1,5 +1,6 @@
 package nl.jamiecraane.raytracing.material
 
+import nl.jamiecraane.raytracing.SceneDsl
 import nl.jamiecraane.raytracing.extensions.component1
 import nl.jamiecraane.raytracing.extensions.component2
 import nl.jamiecraane.raytracing.extensions.component3
@@ -10,7 +11,12 @@ import java.awt.Color
  * @param diffuseColor
  * @param specularComponent
  */
-class Material(private val albedo: Albedo = Albedo(1F), val diffuseColor: Color, val specularComponent: Float = 0F, val refractiveIndex: Float = 1F) {
+@SceneDsl
+class Material(val diffuseColor: Color) {
+    var albedo = Albedo(1F)
+    var specularComponent = 0F
+    var refractiveIndex = 1F
+
     fun applyLightIntensity(
         diffuseLightIntensity: Float,
         specularLightIntensity: Float,

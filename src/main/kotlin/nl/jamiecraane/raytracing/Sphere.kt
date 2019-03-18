@@ -5,8 +5,14 @@ import nl.jamiecraane.raytracing.material.Material
 /**
  * Represents a sphere with a center and a radius. The default color is Color.BLACK.
  */
-class Sphere(val center: Vect3, radius: Float, val material: Material) {
-    private val diameter = radius * radius
+@SceneDsl
+class Sphere(val center: Vect3, val material: Material) {
+    var radius = 1F
+    set(value) {
+        field = value
+        diameter = field * field
+    }
+    private var diameter = radius * radius
     /**
      * @see https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
      * @param dirNormalized Normalized direction vector
@@ -23,7 +29,7 @@ class Sphere(val center: Vect3, radius: Float, val material: Material) {
         val b2 = tca * tca
         // d = a^2
         val d = Math.sqrt((c2 - b2).toDouble())
-        val thc = Math.sqrt((diameter - (d*d)).toDouble()).toFloat()
+        val thc = Math.sqrt((diameter - (d*d))).toFloat()
         if (thc > diameter) return false to 0F
         var t0 : Float = tca - thc
         val t1 : Float = tca + thc
