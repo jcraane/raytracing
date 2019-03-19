@@ -1,9 +1,9 @@
 package nl.jamiecraane.raytracing.material
 
-import nl.jamiecraane.raytracing.scene.SceneDsl
 import nl.jamiecraane.raytracing.extensions.component1
 import nl.jamiecraane.raytracing.extensions.component2
 import nl.jamiecraane.raytracing.extensions.component3
+import nl.jamiecraane.raytracing.scene.SceneDsl
 import java.awt.Color
 
 /**

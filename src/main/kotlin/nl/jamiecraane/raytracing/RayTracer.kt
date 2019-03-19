@@ -11,7 +11,6 @@ import nl.jamiecraane.raytracing.output.ImageCanvas
 import nl.jamiecraane.raytracing.output.RawImage
 import nl.jamiecraane.raytracing.renderingsamples.simpleScene
 import nl.jamiecraane.raytracing.scene.Scene
-import nl.jamiecraane.raytracing.scene.scene
 import nl.jamiecraane.raytracing.util.StopWatch
 import java.awt.Color
 import javax.swing.JFrame
@@ -22,11 +21,6 @@ fun main() {
 //    animationTest(ivory)
 }
 
-private fun createComplexScene() = scene {
-
-}
-
-//todo create an interesting scene with lots of objects.
 private fun renderStaticImage(scene: Scene) {
     val pixels = render(
         scene.getSpheres(), scene.getLights()
@@ -163,29 +157,25 @@ private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): Inte
         }
     }
 
-//    todo add checkerboard.
-   /* var checkedBoardDist = Float.MAX_VALUE
+    var checkedBoardDist = Float.MAX_VALUE
     if (Math.abs(dir.y) > 0.001F) {
         val d = -(orig.y+4)/dir.y // the checkerboard plane has equation y = -4
-//        println("d = $d")
         val pt = orig + dir.scale(d)
-//        println("pt = $pt")
-        // todo tot hier correct
-        if (d > 0 && Math.abs(pt.x) < 10 && pt.z <= 10 && pt.z >= 30 && d < sphereDist) {
+        if (d > 0 && Math.abs(pt.x) < 10 && pt.z<-10 && pt.z>-30 && d < sphereDist) {
             checkedBoardDist = d
             hitPoint = pt
             normalVector = Vect3(0F,1F,0F)
-            *//*val diffuseColor = if (((.5F*hitPoint.x+1000) + (.5F*hitPoint.z)) == 1F) {
+            val i = ((.5F * hitPoint.x + 1000).toInt() + (.5F * hitPoint.z).toInt()) and 1
+            val diffuseColor = if (i == 1) {
                 Color(.3F,.3F,.3F)
             } else {
                 Color(.3F,.2F,.1F)
-            }*//*
-            material = Material(Color.MAGENTA)
+            }
+            material = Material(diffuseColor)
         }
-    }*/
+    }
 
-//    return IntersectResult(hitPoint, normalVector, material, Math.min(sphereDist, checkedBoardDist) < 1000)
-    return IntersectResult(hitPoint, normalVector, material, sphereDist < 1000)
+    return IntersectResult(hitPoint, normalVector, material, Math.min(sphereDist, checkedBoardDist) < 1000)
 }
 
 class IntersectResult(
