@@ -1,14 +1,14 @@
 package nl.jamiecraane.raytracing.objects
 
-import nl.jamiecraane.raytracing.scene.SceneDsl
 import nl.jamiecraane.raytracing.buildingblocks.Vect3
 import nl.jamiecraane.raytracing.material.Material
+import nl.jamiecraane.raytracing.scene.SceneDsl
 
 /**
  * Represents a sphere with a center and a radius. The default color is Color.BLACK.
  */
 @SceneDsl
-class Sphere(val center: Vect3, val material: Material) {
+data class Sphere(val center: Vect3, val material: Material) {
     var radius = 1F
     set(value) {
         field = value
