@@ -1,7 +1,6 @@
 package nl.jamiecraane.raytracing
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nl.jamiecraane.raytracing.buildingblocks.Vect3
@@ -48,11 +47,11 @@ private fun createJFrame(): ImageCanvas {
     return imageCanvas
 }
 
-private const val width = 1600
-private const val height = 1200
+private const val width = 1280
+private const val height = 1024
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
 private const val fov = Math.PI / 3.0
-private const val recursionDepth = 3
+private const val recursionDepth = 4
 // Convenience for now. Replace global data structure with proper encapsulation.
 
 private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
@@ -61,12 +60,12 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
 
 //    todo visualize rays. Should be drawn in 3d.
 
-    val dispatcher = Dispatchers.Unconfined
+    val dispatcher = Dispatchers.Default
+    val executionTime = StopWatch.timeIt {
     runBlocking {
-        val executionTime = StopWatch.timeIt {
             for (j in 0 until height) {
                 for (i in 0 until width) {
-                    GlobalScope.launch(dispatcher) {
+                    launch(dispatcher) {
                         val index = i + j * width
                         val x: Float = (i + 0.5F) - (width / 2F)
                         val y: Float = -(j + 0.5F) + (height / 2F)
@@ -78,9 +77,8 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
                 }
             }
         }
-
-        println(executionTime.toMillis())
     }
+    println(executionTime.toMillis())
 
     return pixels
 }
@@ -166,7 +164,27 @@ private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): Inte
     }
 
 //    todo add checkerboard.
+   /* var checkedBoardDist = Float.MAX_VALUE
+    if (Math.abs(dir.y) > 0.001F) {
+        val d = -(orig.y+4)/dir.y // the checkerboard plane has equation y = -4
+//        println("d = $d")
+        val pt = orig + dir.scale(d)
+//        println("pt = $pt")
+        // todo tot hier correct
+        if (d > 0 && Math.abs(pt.x) < 10 && pt.z <= 10 && pt.z >= 30 && d < sphereDist) {
+            checkedBoardDist = d
+            hitPoint = pt
+            normalVector = Vect3(0F,1F,0F)
+            *//*val diffuseColor = if (((.5F*hitPoint.x+1000) + (.5F*hitPoint.z)) == 1F) {
+                Color(.3F,.3F,.3F)
+            } else {
+                Color(.3F,.2F,.1F)
+            }*//*
+            material = Material(Color.MAGENTA)
+        }
+    }*/
 
+//    return IntersectResult(hitPoint, normalVector, material, Math.min(sphereDist, checkedBoardDist) < 1000)
     return IntersectResult(hitPoint, normalVector, material, sphereDist < 1000)
 }
 

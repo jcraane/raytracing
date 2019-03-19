@@ -4,7 +4,7 @@ import nl.jamiecraane.raytracing.buildingblocks.Vect3
 import nl.jamiecraane.raytracing.scene.scene
 
 val simpleScene = scene {
-    sphere(center = Vect3(-3F, 0F, -16F), material = ivory) { radius = 2F }
+    sphere(center = Vect3(-3.5F, 1.5F, -16F), material = ivory) { radius = 2F }
     sphere(center = Vect3(-1F, -1.5F, -12F), material = glass) { radius = 2F }
     sphere(center = Vect3(1.5F, -0.5F, -18F), material = redRubber) { radius = 3F }
     sphere(center = Vect3(7F, 5F, -18F), material = mirror) { radius = 4F }
