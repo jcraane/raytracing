@@ -17,13 +17,13 @@ import javax.swing.JFrame
 
 fun main() {
     renderStaticImage(simpleScene)
-//    renderStaticImage(complexScene)
+//    renderStaticImage(complexScene, false)
 //    animationTest(ivory)
 }
 
-private fun renderStaticImage(scene: Scene) {
+private fun renderStaticImage(scene: Scene, renderCheckerBoard: Boolean = true) {
     val pixels = render(
-        scene.getSpheres(), scene.getLights()
+        scene.getSpheres(), scene.getLights(), renderCheckerBoard
     )
 
     val imageCanvas = createJFrame()
@@ -48,7 +48,11 @@ private const val fov = Math.PI / 3.0
 private const val recursionDepth = 4
 // Convenience for now. Replace global data structure with proper encapsulation.
 
-private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
+private fun render(
+    spheres: List<Sphere>,
+    lights: List<Light>,
+    renderCheckerBoard: Boolean
+): IntArray {
     val size = width * height
     val pixels = IntArray(size)
 
@@ -66,7 +70,7 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
                         val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
                         val dir = Vect3(x, y, z).normalize()
                         val orig = Vect3(0F, 0F, 0F)
-                        pixels[index] = castRay(orig, dir, spheres, lights, 0).rgb
+                        pixels[index] = castRay(orig, dir, spheres, lights, 0, renderCheckerBoard).rgb
                     }
                 }
             }
@@ -77,8 +81,15 @@ private fun render(spheres: List<Sphere>, lights: List<Light>): IntArray {
     return pixels
 }
 
-private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List<Light>, depth: Int): Color {
-    val result = sceneIntersect(orig, dir, spheres)
+private fun castRay(
+    orig: Vect3,
+    dir: Vect3,
+    spheres: List<Sphere>,
+    lights: List<Light>,
+    depth: Int,
+    renderCheckerBoard: Boolean
+): Color {
+    val result = sceneIntersect(orig, dir, spheres, renderCheckerBoard)
 
     return if (depth > recursionDepth || !result.intersect) {
         backgroundColor
@@ -90,7 +101,7 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
             } else {
                 result.hit + result.normalVector.scale(0.001F)
             }
-            val reflectColor = castRay(reflectOrig, reflectDir, spheres, lights, depth + 1)
+            val reflectColor = castRay(reflectOrig, reflectDir, spheres, lights, depth + 1, renderCheckerBoard)
 
             val refractDir = Refractor.refract(dir, result.normalVector, result.material.refractiveIndex).normalize()
             val refractOrig = if (refractDir.dotProduct(result.normalVector) < 0) {
@@ -98,7 +109,7 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
             } else {
                 result.hit + result.normalVector.scale(0.001F)
             }
-            val refractColor = castRay(refractOrig, refractDir, spheres, lights, depth + 1)
+            val refractColor = castRay(refractOrig, refractDir, spheres, lights, depth + 1, renderCheckerBoard)
 
             var diffuseLightIntensity = 0F
             var specularLightIntensity = 0F
@@ -106,7 +117,7 @@ private fun castRay(orig: Vect3, dir: Vect3, spheres: List<Sphere>, lights: List
                 val lightDir = (light.position - result.hit).normalize()
 
                 val shadowOrigin = isPointInShadowOfLights(lightDir, result.normalVector, result.hit)
-                val shadowResult = sceneIntersect(shadowOrigin, lightDir, spheres)
+                val shadowResult = sceneIntersect(shadowOrigin, lightDir, spheres, renderCheckerBoard)
                 if (!shadowResult.intersect) {
                     diffuseLightIntensity += DiffuseLightReflector.calculateIntensity(
                         lightDir, result.normalVector, light
@@ -141,7 +152,12 @@ private fun isPointInShadowOfLights(
     }
 }
 
-private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): IntersectResult {
+private fun sceneIntersect(
+    orig: Vect3,
+    dir: Vect3,
+    spheres: List<Sphere>,
+    renderCheckerBoard: Boolean
+): IntersectResult {
     var sphereDist = Float.MAX_VALUE
     var material = Material(diffuseColor = Color.BLACK)
     material.specularComponent = 0F
@@ -158,20 +174,22 @@ private fun sceneIntersect(orig: Vect3, dir: Vect3, spheres: List<Sphere>): Inte
     }
 
     var checkedBoardDist = Float.MAX_VALUE
-    if (Math.abs(dir.y) > 0.001F) {
-        val d = -(orig.y+4)/dir.y // the checkerboard plane has equation y = -4
-        val pt = orig + dir.scale(d)
-        if (d > 0 && Math.abs(pt.x) < 10 && pt.z<-10 && pt.z>-30 && d < sphereDist) {
-            checkedBoardDist = d
-            hitPoint = pt
-            normalVector = Vect3(0F,1F,0F)
-            val i = ((.5F * hitPoint.x + 1000).toInt() + (.5F * hitPoint.z).toInt()) and 1
-            val diffuseColor = if (i == 1) {
-                Color(.3F,.3F,.3F)
-            } else {
-                Color(.3F,.2F,.1F)
+    if (renderCheckerBoard) {
+        if (Math.abs(dir.y) > 0.001F) {
+            val d = -(orig.y+4)/dir.y // the checkerboard plane has equation y = -4
+            val pt = orig + dir.scale(d)
+            if (d > 0 && Math.abs(pt.x) < 12 && pt.z<-10 && pt.z>-30 && d < sphereDist) {
+                checkedBoardDist = d
+                hitPoint = pt
+                normalVector = Vect3(0F,1F,0F)
+                val i = ((.5F * hitPoint.x + 1000).toInt() + (.5F * hitPoint.z).toInt()) and 1
+                val diffuseColor = if (i == 1) {
+                    Color(.3F,.3F,.3F)
+                } else {
+                    Color(.3F,.2F,.1F)
+                }
+                material = Material(diffuseColor)
             }
-            material = Material(diffuseColor)
         }
     }
 
