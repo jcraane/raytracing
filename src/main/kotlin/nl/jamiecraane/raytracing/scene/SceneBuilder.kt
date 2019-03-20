@@ -18,7 +18,7 @@ class Scene {
     private val lights = mutableListOf<Light>()
 
     fun sphere(center: Vect3, material: Material, init: Sphere.() -> Unit) {
-       val sphere = Sphere(center, material)
+        val sphere = Sphere(center, material)
         sphere.init()
         spheres.add(sphere)
     }
