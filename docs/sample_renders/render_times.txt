@@ -1,0 +1,2 @@
+simpleSceneHighRes.jpg -> 497s (8 min)
+complexSceneWithHoleHighRes.jpg -> 684s (11.4 min)
