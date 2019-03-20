@@ -13,10 +13,11 @@ import nl.jamiecraane.raytracing.renderingsamples.simpleScene
 import nl.jamiecraane.raytracing.scene.Scene
 import nl.jamiecraane.raytracing.util.StopWatch
 import java.awt.Color
+import java.util.*
 import javax.swing.JFrame
 
 fun main() {
-    renderStaticImage(simpleScene)
+    renderStaticImage(simpleScene, true)
 //    renderStaticImage(complexScene, false)
 //    animationTest(ivory)
 }
@@ -41,12 +42,20 @@ private fun createJFrame(): ImageCanvas {
     return imageCanvas
 }
 
+// Convenience for now. Replace global data structure with proper encapsulation.
 private const val width = 1280
 private const val height = 1024
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
 private const val fov = Math.PI / 3.0
 private const val recursionDepth = 4
-// Convenience for now. Replace global data structure with proper encapsulation.
+private val whatToRender = EnumSet.of(
+    WhatToRender.FLAT,
+    WhatToRender.DIFFUSE,
+    WhatToRender.SHADOWS,
+    WhatToRender.SPECULAR,
+    WhatToRender.REFLECTION,
+    WhatToRender.REFRACTION
+)
 
 private fun render(
     spheres: List<Sphere>,
@@ -60,7 +69,7 @@ private fun render(
 
     val dispatcher = Dispatchers.Default
     val executionTime = StopWatch.timeIt {
-    runBlocking {
+        runBlocking {
             for (j in 0 until height) {
                 for (i in 0 until width) {
                     launch(dispatcher) {
@@ -118,7 +127,7 @@ private fun castRay(
 
                 val shadowOrigin = isPointInShadowOfLights(lightDir, result.normalVector, result.hit)
                 val shadowResult = sceneIntersect(shadowOrigin, lightDir, spheres, renderCheckerBoard)
-                if (!shadowResult.intersect) {
+                if (!shadowResult.intersect || !whatToRender.contains(WhatToRender.SHADOWS)) {
                     diffuseLightIntensity += DiffuseLightReflector.calculateIntensity(
                         lightDir, result.normalVector, light
                     )
@@ -132,7 +141,8 @@ private fun castRay(
                 diffuseLightIntensity,
                 specularLightIntensity,
                 reflectColor,
-                refractColor
+                refractColor,
+                whatToRender
             )
         } else {
             return backgroundColor
@@ -176,17 +186,17 @@ private fun sceneIntersect(
     var checkedBoardDist = Float.MAX_VALUE
     if (renderCheckerBoard) {
         if (Math.abs(dir.y) > 0.001F) {
-            val d = -(orig.y+4)/dir.y // the checkerboard plane has equation y = -4
+            val d = -(orig.y + 4) / dir.y // the checkerboard plane has equation y = -4
             val pt = orig + dir.scale(d)
-            if (d > 0 && Math.abs(pt.x) < 12 && pt.z<-10 && pt.z>-30 && d < sphereDist) {
+            if (d > 0 && Math.abs(pt.x) < 12 && pt.z < -10 && pt.z > -30 && d < sphereDist) {
                 checkedBoardDist = d
                 hitPoint = pt
-                normalVector = Vect3(0F,1F,0F)
+                normalVector = Vect3(0F, 1F, 0F)
                 val i = ((.5F * hitPoint.x + 1000).toInt() + (.5F * hitPoint.z).toInt()) and 1
                 val diffuseColor = if (i == 1) {
-                    Color(.3F,.3F,.3F)
+                    Color(.3F, .3F, .3F)
                 } else {
-                    Color(.3F,.2F,.1F)
+                    Color(.3F, .2F, .1F)
                 }
                 material = Material(diffuseColor)
             }
