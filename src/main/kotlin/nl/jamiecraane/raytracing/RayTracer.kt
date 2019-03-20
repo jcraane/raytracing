@@ -11,11 +11,13 @@ import nl.jamiecraane.raytracing.output.ImageCanvas
 import nl.jamiecraane.raytracing.output.RawImage
 import nl.jamiecraane.raytracing.renderingsamples.simpleScene
 import nl.jamiecraane.raytracing.scene.Scene
+import nl.jamiecraane.raytracing.util.BoundedList
 import nl.jamiecraane.raytracing.util.StopWatch
 import java.awt.Color
 import java.util.*
 import javax.swing.JFrame
 
+//todo create soft shadows
 fun main() {
     renderStaticImage(simpleScene, true)
 //    renderStaticImage(complexScene, false)
@@ -48,6 +50,7 @@ private const val height = 1024
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
 private const val fov = Math.PI / 3.0
 private const val recursionDepth = 4
+private val hitPoints = BoundedList<Vect3>(10, mutableListOf())
 private val whatToRender = EnumSet.of(
     WhatToRender.FLAT,
     WhatToRender.DIFFUSE,
@@ -86,6 +89,9 @@ private fun render(
         }
     }
     println(executionTime.toMillis())
+    println("hitPoints = ${hitPoints}")
+
+//    todo trace rays from orig to hitpoint. Hoe mappen we deze rays op de juiste pixels?.
 
     return pixels
 }
@@ -104,6 +110,7 @@ private fun castRay(
         backgroundColor
     } else {
         if (result.hit != null && result.normalVector != null) {
+            hitPoints.add(result.hit)
             val reflectDir = Reflector.reflect(dir, result.normalVector).normalize()
             val reflectOrig = if (reflectDir.dotProduct(result.normalVector) < 0) {
                 result.hit - result.normalVector.scale(0.001F)
