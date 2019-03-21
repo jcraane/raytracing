@@ -4,6 +4,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nl.jamiecraane.raytracing.buildingblocks.Vect3
+import nl.jamiecraane.raytracing.extensions.component1
+import nl.jamiecraane.raytracing.extensions.component2
+import nl.jamiecraane.raytracing.extensions.component3
 import nl.jamiecraane.raytracing.lights.*
 import nl.jamiecraane.raytracing.material.Material
 import nl.jamiecraane.raytracing.objects.Sphere
@@ -17,7 +20,7 @@ import java.awt.Color
 import java.util.*
 import javax.swing.JFrame
 
-//todo create soft shadows
+//todo create soft shadows, perhaps using stochastic ray tracing.
 fun main() {
     renderStaticImage(simpleScene, true)
 //    renderStaticImage(complexScene, false)
@@ -45,8 +48,8 @@ private fun createJFrame(): ImageCanvas {
 }
 
 // Convenience for now. Replace global data structure with proper encapsulation.
-private const val width = 1280
-private const val height = 1024
+private const val width = 1024
+private const val height = 768
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
 private const val fov = Math.PI / 3.0
 private const val recursionDepth = 4
@@ -91,9 +94,25 @@ private fun render(
     println(executionTime.toMillis())
     println("hitPoints = ${hitPoints}")
 
-//    todo trace rays from orig to hitpoint. Hoe mappen we deze rays op de juiste pixels?.
+//todo trace rays from orig to hitpoint. Hoe mappen we deze rays op de juiste pixels?.
+//  Use a second pass for interect testing with the rays we want to visualize.
+
 
     return pixels
+}
+
+private fun averageColors(colors: List<Color>): Color {
+    var rtotal = 0F
+    var gtotal = 0F
+    var btotal = 0F
+    colors.forEach { c ->
+        val (r, g, b) = c
+        rtotal += r
+        gtotal += g
+        btotal += b
+    }
+
+    return Color(rtotal / colors.size.toFloat(), gtotal / colors.size.toFloat(), btotal / colors.size.toFloat())
 }
 
 private fun castRay(
