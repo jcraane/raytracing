@@ -17,7 +17,7 @@ val complexScene = scene {
     for (x in range) {
         for (y in range) {
             if (y != 0 || x != 0) {
-                for (z in 10..48 step 4) {
+                for (z in 10..24 step 4) {
                     sphere(
                         center = Vect3(x.toFloat(), y.toFloat(), -z.toFloat()),
                         material = materials[random.nextInt(materials.size)]
