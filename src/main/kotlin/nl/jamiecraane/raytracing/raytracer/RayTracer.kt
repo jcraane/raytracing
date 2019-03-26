@@ -1,12 +1,12 @@
-package nl.jamiecraane.raytracing
+package nl.jamiecraane.raytracing.raytracer
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import nl.jamiecraane.raytracing.WhatToRender
+import nl.jamiecraane.raytracing.buildingblocks.Ray
 import nl.jamiecraane.raytracing.buildingblocks.Vect3
-import nl.jamiecraane.raytracing.extensions.component1
-import nl.jamiecraane.raytracing.extensions.component2
-import nl.jamiecraane.raytracing.extensions.component3
+import nl.jamiecraane.raytracing.extensions.averageColors
 import nl.jamiecraane.raytracing.lights.*
 import nl.jamiecraane.raytracing.material.Material
 import nl.jamiecraane.raytracing.objects.Sphere
@@ -48,12 +48,16 @@ private fun createJFrame(): ImageCanvas {
 }
 
 // Convenience for now. Replace global data structure with proper encapsulation.
-private const val width = 1024
-private const val height = 768
+private const val width = 1280
+private const val height = 1024
+private val halfWidth = width / 2F
+private val halfHeight = height / 2F
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
 private const val fov = Math.PI / 3.0
 private const val recursionDepth = 4
+private val renderMode = RenderMode.PLAIN
 private val hitPoints = BoundedList<Vect3>(10, mutableListOf())
+private val random = Random()
 private val whatToRender = EnumSet.of(
     WhatToRender.FLAT,
     WhatToRender.DIFFUSE,
@@ -70,8 +74,8 @@ private fun render(
 ): IntArray {
     val size = width * height
     val pixels = IntArray(size)
-
-//    todo visualize rays. Should be drawn in 3d.
+    val orig = Vect3(0F, 0F, 0F)
+    val fovAngle = 2F * Math.tan(fov / 2F)
 
     val dispatcher = Dispatchers.Default
     val executionTime = StopWatch.timeIt {
@@ -80,39 +84,54 @@ private fun render(
                 for (i in 0 until width) {
                     launch(dispatcher) {
                         val index = i + j * width
-                        val x: Float = (i + 0.5F) - (width / 2F)
-                        val y: Float = -(j + 0.5F) + (height / 2F)
-                        val z: Float = -height / (2F * Math.tan(fov / 2F)).toFloat()
-                        val dir = Vect3(x, y, z).normalize()
-                        val orig = Vect3(0F, 0F, 0F)
-                        pixels[index] = castRay(orig, dir, spheres, lights, 0, renderCheckerBoard).rgb
+                        val z: Float = -height / fovAngle.toFloat()
+                        val colors =
+                            computeRays(renderMode, i, j, z, orig)
+                                .map { ray ->
+                                    castRay(orig, ray.direction, spheres, lights, 0, renderCheckerBoard)
+                                }
+                        pixels[index] = averageColors(colors).rgb
                     }
                 }
             }
         }
     }
     println(executionTime.toMillis())
-    println("hitPoints = ${hitPoints}")
 
 //todo trace rays from orig to hitpoint. Hoe mappen we deze rays op de juiste pixels?.
 //  Use a second pass for interect testing with the rays we want to visualize.
-
-
     return pixels
 }
 
-private fun averageColors(colors: List<Color>): Color {
-    var rtotal = 0F
-    var gtotal = 0F
-    var btotal = 0F
-    colors.forEach { c ->
-        val (r, g, b) = c
-        rtotal += r
-        gtotal += g
-        btotal += b
+private fun computeRays(mode: RenderMode, i: Int, j: Int, z: Float, orig: Vect3): List<Ray> {
+    return when (mode) {
+        RenderMode.PLAIN -> {
+            val x: Float = (i + 0.5F) - halfWidth
+            val y: Float = -(j + 0.5F) + halfHeight
+            val dir = Vect3(x, y, z).normalize()
+            listOf(orig to dir)
+        }
+        RenderMode.SUPERSAMPLING -> {
+            val rays = mutableListOf<Ray>()
+            val centerX: Float = (i + 0.5F) - halfWidth
+            val centerY: Float = -(j + 0.5F) + halfHeight
+            rays += orig to Vect3(centerX, centerY, z).normalize()
+            rays += orig to Vect3(centerX - 0.5F, centerY - 0.5F, z).normalize()
+            rays += orig to Vect3(centerX - 0.5F, centerY + 0.5F, z).normalize()
+            rays += orig to Vect3(centerX + 0.5F, centerY - 0.5F, z).normalize()
+            rays += orig to Vect3(centerX + 0.5F, centerY + 0.5F, z).normalize()
+            rays
+        }
+        RenderMode.STOCHASTIC -> {
+            val rays = mutableListOf<Ray>()
+            val leftX: Float = (i + 0.5F) - halfWidth
+            val topY: Float = -(j + 0.5F) + halfHeight
+            for (i in 0 until 9) {
+                rays += orig to (Vect3(leftX + random.nextFloat() - 0.5F, topY + random.nextFloat() - 0.5F, z).normalize())
+            }
+            rays
+        }
     }
-
-    return Color(rtotal / colors.size.toFloat(), gtotal / colors.size.toFloat(), btotal / colors.size.toFloat())
 }
 
 private fun castRay(

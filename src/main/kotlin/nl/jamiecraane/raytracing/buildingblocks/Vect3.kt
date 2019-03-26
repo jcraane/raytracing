@@ -49,6 +49,8 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
         }
     }
 
+    infix fun to(direction: Vect3) = Ray(this, direction)
+
     override fun hashCode(): Int {
         var result = x.hashCode()
         result = 31 * result + y.hashCode()

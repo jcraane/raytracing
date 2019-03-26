@@ -1,37 +1,22 @@
 package nl.jamiecraane.raytracing
 
-import nl.jamiecraane.raytracing.buildingblocks.Vect3
+import java.math.BigDecimal
 
 fun main() {
-//    val one = Vect3(7F, 3F)
-//    val sphere = Sphere(Vect3(10F, 6F), 3F, Material(Albedo(0.6F, 0.3F, 0.1F), Color(0.4F, 0.4F, 0.3F), 50F))
-//    val intersect = sphere.rayIntersect(Vect3.originVector(), one.normalize())
-//    println(intersect)
+    /*val scene = scene {
+        sphere(center = Vect3.originVector(), material = glass) {
+            radius = 2F
+        }
+        sphere(center = Vect3.originVector(), material = glass) {
+            radius = 2F
+        }
+        
+        light(position = Vect3.originVector()) {
+            intensity = 125F
+        }
+    }
 
-    println(Vect3(1F, 1F).normalize())
-    println(
-        Vect3(
-            1F,
-            1F
-        ).normalize().dotProduct(Vect3(7F, 3F)))
-    println((Vect3(7F, 3F).dotProduct(Vect3(1F, 1F))))
+    println("scene {  } = ${scene}")*/
 
-    val D = Vect3(7F, 3F)
-    val dNormalized = D.normalize()
-    val C = Vect3(10F, 6F)
-    val O = Vect3.originVector()
-    val L = C - O
-    println("L = $L")
-
-    val tca = L.dotProduct(dNormalized)
-    println("tca = $tca")
-
-
-    /*println("L.dotProduct(L) = ${L.dotProduct(L)}")
-    println("Lengt L ^ 2 = ${L.magnitude() * L.magnitude()}") * /
-
-    println(Vect3(7F, 3F).dotProduct(Vect3(7F, 3F)))
-    println(Vect3(7F, 3F).magnitude() * (Vect3(7F, 3F).magnitude()))*/
-
-
+    println(System.out.println(BigDecimal(0.1)))
 }
