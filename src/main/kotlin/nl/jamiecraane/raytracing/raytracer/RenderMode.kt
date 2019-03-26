@@ -12,7 +12,8 @@ enum class RenderMode {
             val dir = Vect3(x, y, z).normalize()
             return listOf(orig to dir)
         }
-    }, SUPERSAMPLING {
+    },
+    SUPERSAMPLING {
         override fun computeRays(i: Int, j: Int, z: Float, orig: Vect3, halfWidth: Float, halfHeight: Float): List<Ray> {
             val rays = mutableListOf<Ray>()
             val centerX: Float = (i + 0.5F) - halfWidth
@@ -24,7 +25,8 @@ enum class RenderMode {
             rays += orig to Vect3(centerX + 0.5F, centerY + 0.5F, z).normalize()
             return rays
         }
-    }, STOCHASTIC {
+    },
+    STOCHASTIC {
         override fun computeRays(i: Int, j: Int, z: Float, orig: Vect3, halfWidth: Float, halfHeight: Float): List<Ray> {
             val rays = mutableListOf<Ray>()
             val leftX: Float = (i + 0.5F) - halfWidth
@@ -36,7 +38,7 @@ enum class RenderMode {
         }
     };
 
-    abstract fun computeRays(i: Int, j: Int, z: Float, orig: Vect3, halfWidth: Float, halfHeight: Float) : List<Ray>
+    abstract fun computeRays(i: Int, j: Int, z: Float, orig: Vect3, halfWidth: Float, halfHeight: Float): List<Ray>
 
     companion object {
         private val random = Random()
