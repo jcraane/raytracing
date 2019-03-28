@@ -19,7 +19,6 @@ import java.awt.Color
 import java.util.*
 import javax.swing.JFrame
 
-//todo create soft shadows, perhaps using stochastic ray tracing.
 fun main() {
     renderStaticImage(simpleScene, true)
 //    renderStaticImage(complexScene, false)
@@ -49,10 +48,6 @@ private fun createJFrame(): ImageCanvas {
 // Convenience for now. Replace global data structure with proper encapsulation.
 private const val width = 1024
 private const val height = 768
-private const val halfWidth = width / 2F
-private const val halfHeight = height / 2F
-private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
-private const val fov = Math.PI / 3.0
 private const val recursionDepth = 4
 private val renderMode = RenderMode.PLAIN
 private val hitPoints = BoundedList<Vect3>(10, mutableListOf())
@@ -64,6 +59,11 @@ private val whatToRender = EnumSet.of(
     WhatToRender.REFLECTION,
     WhatToRender.REFRACTION
 )
+
+private const val halfWidth = width / 2F
+private const val halfHeight = height / 2F
+private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
+private const val fov = Math.PI / 3.0
 
 private fun render(
     spheres: List<Sphere>,
