@@ -32,12 +32,12 @@ class Vect3Test {
         assertEquals(44.0, Vect3(
             6.0,
             8.0
-        ).dotProduct(Vect3(2.0, 4.0)))
+        ).dotProduct(Vect3(2.0, 4.0)), 0.1)
         assertEquals(74.0, Vect3(
             6.0,
             8.0,
             3.0
-        ).dotProduct(Vect3(2.0, 4.0, 10.0)))
+        ).dotProduct(Vect3(2.0, 4.0, 10.0)), 0.1)
         assertEquals(13.2, Vect3(
             -3.0,
             0.0,
@@ -67,9 +67,9 @@ class Vect3Test {
 
     @Test
     fun crossProduct() {
-        val v1 = Vect3(20.0, 30.0, 40.0)
-        val v2 = Vect3(50.0, 60.0, 70.0)
-        assertEquals(Vect3(-30.0, 60.0, -30.0), v1.crossProduct(v2))
+        val v1 = Vect3(2.0, 3.0, 4.0)
+        val v2 = Vect3(5.0, 6.0, 7.0)
+        assertEquals(Vect3(-3.0, 6.0, -3.0), v1.crossProduct(v2))
     }
 
     @Test
