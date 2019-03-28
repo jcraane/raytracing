@@ -60,8 +60,8 @@ private val whatToRender = EnumSet.of(
     WhatToRender.REFRACTION
 )
 
-private const val halfWidth = width / 2F
-private const val halfHeight = height / 2F
+private const val halfWidth = width / 2.0
+private const val halfHeight = height / 2.0
 private val backgroundColor = Color(0.2F, 0.7F, 0.8F)
 private const val fov = Math.PI / 3.0
 
@@ -72,8 +72,8 @@ private fun render(
 ): IntArray {
     val size = width * height
     val pixels = IntArray(size)
-    val orig = Vect3(0F, 0F, 0F)
-    val fovAngle = 2F * Math.tan(fov / 2F)
+    val orig = Vect3(0.0, 0.0, 0.0)
+    val fovAngle = 2.0 * Math.tan(fov / 2.0)
 
     val dispatcher = Dispatchers.Default
     val executionTime = StopWatch.timeIt {
@@ -82,7 +82,7 @@ private fun render(
                 for (i in 0 until width) {
                     launch(dispatcher) {
                         val index = i + j * width
-                        val z: Float = -height / fovAngle.toFloat()
+                        val z: Double = -height / fovAngle
                         val colors =
                             renderMode.computeRays(i, j, z, orig, halfWidth, halfHeight)
                                 .map { ray ->
@@ -118,22 +118,22 @@ private fun castRay(
             hitPoints.add(result.hit)
             val reflectDir = Reflector.reflect(dir, result.normalVector).normalize()
             val reflectOrig = if (reflectDir.dotProduct(result.normalVector) < 0) {
-                result.hit - result.normalVector.scale(0.001F)
+                result.hit - result.normalVector.scale(0.001)
             } else {
-                result.hit + result.normalVector.scale(0.001F)
+                result.hit + result.normalVector.scale(0.001)
             }
             val reflectColor = castRay(reflectOrig, reflectDir, spheres, lights, depth + 1, renderCheckerBoard)
 
             val refractDir = Refractor.refract(dir, result.normalVector, result.material.refractiveIndex).normalize()
             val refractOrig = if (refractDir.dotProduct(result.normalVector) < 0) {
-                result.hit - result.normalVector.scale(0.001F)
+                result.hit - result.normalVector.scale(0.001)
             } else {
-                result.hit + result.normalVector.scale(0.001F)
+                result.hit + result.normalVector.scale(0.001)
             }
             val refractColor = castRay(refractOrig, refractDir, spheres, lights, depth + 1, renderCheckerBoard)
 
-            var diffuseLightIntensity = 0F
-            var specularLightIntensity = 0F
+            var diffuseLightIntensity = 0.0
+            var specularLightIntensity = 0.0
             for (light in lights) {
                 val lightDir = (light.position - result.hit).normalize()
 
@@ -168,9 +168,9 @@ private fun isPointInShadowOfLights(
     hit: Vect3
 ): Vect3 {
     return if (lightDir.dotProduct(normalVector) < 0) {
-        hit - normalVector.scale(0.001F)
+        hit - normalVector.scale(0.001)
     } else {
-        hit + normalVector.scale(0.001F)
+        hit + normalVector.scale(0.001)
     }
 }
 
@@ -180,9 +180,9 @@ private fun sceneIntersect(
     spheres: List<Sphere>,
     renderCheckerBoard: Boolean
 ): IntersectResult {
-    var sphereDist = Float.MAX_VALUE
+    var sphereDist = Double.MAX_VALUE
     var material = Material(diffuseColor = Color.BLACK)
-    material.specularComponent = 0F
+    material.specularComponent = 0.0
     var hitPoint: Vect3? = null
     var normalVector: Vect3? = null
     for (sphere in spheres) {
@@ -195,16 +195,16 @@ private fun sceneIntersect(
         }
     }
 
-    var checkedBoardDist = Float.MAX_VALUE
+    var checkedBoardDist = Double.MAX_VALUE
     if (renderCheckerBoard) {
-        if (Math.abs(dir.y) > 0.001F) {
+        if (Math.abs(dir.y) > 0.001) {
             val d = -(orig.y + 4) / dir.y // the checkerboard plane has equation y = -4
             val pt = orig + dir.scale(d)
             if (d > 0 && Math.abs(pt.x) < 12 && pt.z < -10 && pt.z > -30 && d < sphereDist) {
                 checkedBoardDist = d
                 hitPoint = pt
-                normalVector = Vect3(0F, 1F, 0F)
-                val i = ((.5F * hitPoint.x + 1000).toInt() + (.5F * hitPoint.z).toInt()) and 1
+                normalVector = Vect3(0.0, 1.0, 0.0)
+                val i = ((.5 * hitPoint.x + 1000).toInt() + (.5 * hitPoint.z).toInt()) and 1
                 val diffuseColor = if (i == 1) {
                     Color(.3F, .3F, .3F)
                 } else {

@@ -4,13 +4,13 @@ import nl.jamiecraane.raytracing.buildingblocks.Vect3
 import nl.jamiecraane.raytracing.scene.scene
 
 val simpleScene = scene {
-    sphere(center = Vect3(-3F, 0.5F, -16F), material = ivory) { radius = 2F }
-    sphere(center = Vect3(-1F, -1.5F, -12F), material = glass) { radius = 2F }
-    sphere(center = Vect3(1.5F, -0.5F, -18F), material = redRubber) { radius = 3F }
-    sphere(center = Vect3(7F, 5F, -18F), material = mirror) { radius = 4F }
-//    sphere(center = Vect3(4F, -1.5F, -13F), material = mirror) { radius = 3F }
+    sphere(center = Vect3(-3.0, 0.5, -16.0), material = ivory) { radius = 2.0 }
+    sphere(center = Vect3(-1.0, -1.5, -12.0), material = glass) { radius = 2.0 }
+    sphere(center = Vect3(1.5, -0.5, -18.0), material = redRubber) { radius = 3.0 }
+    sphere(center = Vect3(7.0, 5.0, -18.0), material = mirror) { radius = 4.0 }
+//    sphere(center = Vect3(4.0, -1.5.0, -13.0), material = mirror) { radius = 3.0 }
 
-    light(Vect3(-20F, 20F, 20F)) { intensity = 1.5F }
-    light(Vect3(30F, 50F, -25F)) { intensity = 1.8F }
-    light(Vect3(30F, 20F, 30F)) { intensity = 1.7F }
+    light(Vect3(-20.0, 20.0, 20.0)) { intensity = 1.5 }
+    light(Vect3(30.0, 50.0, -25.0)) { intensity = 1.8 }
+    light(Vect3(30.0, 20.0, 30.0)) { intensity = 1.7 }
 }

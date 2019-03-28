@@ -16,12 +16,12 @@ import java.util.*
 @SceneDsl
 class Material(val diffuseColor: Color) {
     var albedo = Albedo(1F)
-    var specularComponent = 0F
-    var refractiveIndex = 1F
+    var specularComponent = 0.0
+    var refractiveIndex = 1.0
 
     fun applyLightIntensity(
-        diffuseLightIntensity: Float,
-        specularLightIntensity: Float,
+        diffuseLightIntensity: Double,
+        specularLightIntensity: Double,
         reflectColor: Color,
         refractColor: Color,
         whatToRender: EnumSet<WhatToRender>
@@ -35,14 +35,14 @@ class Material(val diffuseColor: Color) {
         var b = color_b
 
         if (whatToRender.contains(WhatToRender.DIFFUSE)) {
-            val diffuseColor = diffuseLightIntensity * albedo.a
+            val diffuseColor = (diffuseLightIntensity * albedo.a).toFloat()
             r *= diffuseColor
             g *= diffuseColor
             b *= diffuseColor
         }
 
         if (whatToRender.contains(WhatToRender.SPECULAR)) {
-            val specularColor = specularLightIntensity * albedo.b
+            val specularColor = (specularLightIntensity * albedo.b).toFloat()
             r += specularColor
             g += specularColor
             b += specularColor

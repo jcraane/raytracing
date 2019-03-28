@@ -8,9 +8,9 @@ val complexScene = scene {
     val materials = arrayOf(ivory, redRubber, mirror, glass)
     val random = Random()
 
-    light(Vect3(-20F, 20F, 20F)) { intensity = 1.5F }
-    light(Vect3(30F, 50F, -25F)) { intensity = 1.8F }
-    light(Vect3(30F, 20F, 30F)) { intensity = 1.7F }
+    light(Vect3(-20.0, 20.0, 20.0)) { intensity = 1.5 }
+    light(Vect3(30.0, 50.0, -25.0)) { intensity = 1.8 }
+    light(Vect3(30.0, 20.0, 30.0)) { intensity = 1.7 }
 
     val range = -8..8 step 4
 
@@ -19,10 +19,10 @@ val complexScene = scene {
             if (y != 0 || x != 0) {
                 for (z in 10..24 step 4) {
                     sphere(
-                        center = Vect3(x.toFloat(), y.toFloat(), -z.toFloat()),
+                        center = Vect3(x.toDouble(), y.toDouble(), -z.toDouble()),
                         material = materials[random.nextInt(materials.size)]
                     ) {
-                        radius = random.nextFloat() + 1F
+                        radius = random.nextFloat() + 1.0
                     }
                 }
             }

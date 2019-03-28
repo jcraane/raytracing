@@ -10,12 +10,12 @@ object SpecularLightReflector {
         rayDirection: Vect3,
         light: Light,
         material: Material
-    ): Float {
+    ): Double {
         return (Math.pow(
             Math.max(
-                0F,
+                0.0,
                 Reflector.reflect(lightDirection, normalVector).dotProduct(rayDirection)
             ).toDouble(), material.specularComponent.toDouble()
-        ) * light.intensity).toFloat()
+        ) * light.intensity)
     }
 }

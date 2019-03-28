@@ -8,116 +8,116 @@ class Vect3Test {
     @Test
     fun add() {
         assertEquals(
-            Vect3(10F, 14F, 7F), Vect3(
-                2F,
-                4F,
-                6F
-            ) + Vect3(8F, 10F, 1F)
+            Vect3(10.0, 14.0, 7.0), Vect3(
+                2.0,
+                4.0,
+                6.0
+            ) + Vect3(8.0, 10.0, 1.0)
         )
     }
 
     @Test
     fun subtract() {
         assertEquals(
-            Vect3(-6F, -6F, 5F), Vect3(
-                2F,
-                4F,
-                6F
-            ) - Vect3(8F, 10F, 1F)
+            Vect3(-6.0, -6.0, 5.0), Vect3(
+                2.0,
+                4.0,
+                6.0
+            ) - Vect3(8.0, 10.0, 1.0)
         )
     }
 
     @Test
     fun dotProduct() {
-        assertEquals(44F, Vect3(
-            6F,
-            8F
-        ).dotProduct(Vect3(2F, 4F)))
-        assertEquals(74F, Vect3(
-            6F,
-            8F,
-            3F
-        ).dotProduct(Vect3(2F, 4F, 10F)))
-        assertEquals(13.2F, Vect3(
-            -3F,
-            0F,
-            -16F
-        ).dotProduct(Vect3(-0.544575F, 0.418946F, -0.726582F)), 0.1F)
+        assertEquals(44.0, Vect3(
+            6.0,
+            8.0
+        ).dotProduct(Vect3(2.0, 4.0)))
+        assertEquals(74.0, Vect3(
+            6.0,
+            8.0,
+            3.0
+        ).dotProduct(Vect3(2.0, 4.0, 10.0)))
+        assertEquals(13.2, Vect3(
+            -3.0,
+            0.0,
+            -16.0
+        ).dotProduct(Vect3(-0.544575, 0.418946, -0.726582)), 0.1)
     }
 
     @Test
     fun equalsTest() {
-        assertTrue(Vect3(2F, 3F) == Vect3(2F, 3F))
+        assertTrue(Vect3(2.0, 3.0) == Vect3(2.0, 3.0))
         assertTrue(
-            Vect3(2F, 3F, 5F) == Vect3(
-                2F,
-                3F,
-                5F
+            Vect3(2.0, 3.0, 5.0) == Vect3(
+                2.0,
+                3.0,
+                5.0
             )
         )
-        assertTrue(Vect3(2F, 3F) != Vect3(3F, 3F))
+        assertTrue(Vect3(2.0, 3.0) != Vect3(3.0, 3.0))
         assertTrue(
-            Vect3(2F, 3F, 5F) != Vect3(
-                2F,
-                3F,
-                6F
+            Vect3(2.0, 3.0, 5.0) != Vect3(
+                2.0,
+                3.0,
+                6.0
             )
         )
     }
 
     @Test
     fun crossProduct() {
-        val v1 = Vect3(2F, 3F, 4F)
-        val v2 = Vect3(5F, 6F, 7F)
-        assertEquals(Vect3(-3F, 6F, -3F), v1.crossProduct(v2))
+        val v1 = Vect3(20.0, 30.0, 40.0)
+        val v2 = Vect3(50.0, 60.0, 70.0)
+        assertEquals(Vect3(-30.0, 60.0, -30.0), v1.crossProduct(v2))
     }
 
     @Test
     fun scale() {
         assertEquals(
-            Vect3(4F, 8F, 16F), Vect3(
-                2F,
-                4F,
-                8F
-            ).scale(2F))
+            Vect3(4.0, 8.0, 16.0), Vect3(
+                2.0,
+                4.0,
+                8.0
+            ).scale(2.0))
     }
 
     @Test
     fun magnitude() {
-        assertEquals(10.0, Vect3(6F, 8F).magnitude(), 0.1)
-        assertEquals(10.7, Vect3(6F, 8F, 4F).magnitude(), 0.1)
+        assertEquals(10.0, Vect3(6.0, 8.0).magnitude(), 0.1)
+        assertEquals(10.7, Vect3(6.0, 8.0, 4.0).magnitude(), 0.1)
     }
 
     @Test
     fun normalize() {
-        val n = Vect3(3F, 5F, 2F).normalize()
-        assertEquals(0.48F, n.x, 0.01F)
-        assertEquals(0.81F, n.y, 0.01F)
-        assertEquals(0.32F, n.z, 0.01F)
+        val n = Vect3(3.0, 5.0, 2.0).normalize()
+        assertEquals(0.48, n.x, 0.01)
+        assertEquals(0.81, n.y, 0.01)
+        assertEquals(0.32, n.z, 0.01)
     }
 
     @Test
     fun angle() {
-        assertEquals(85.2F, Vect3(
-            6F,
-            -2F,
-            -3F
-        ).angleBetween(Vect3(1F, 1F, 1F)), 0.1F)
+        assertEquals(85.2, Vect3(
+            6.0,
+            -2.0,
+            -3.0
+        ).angleBetween(Vect3(1.0, 1.0, 1.0)), 0.1)
     }
 
     @Test
     fun isOrthogonal() {
         assertTrue(
-            Vect3(2F, 4F).isOrthogonalTo(
+            Vect3(2.0, 4.0).isOrthogonalTo(
                 Vect3(
-                    4F,
-                    -2F
+                    4.0,
+                    -2.0
                 )
             ))
         assertFalse(
             Vect3(
-                2F,
-                4F
-            ).isOrthogonalTo(Vect3(1F, -2F)))
+                2.0,
+                4.0
+            ).isOrthogonalTo(Vect3(1.0, -2.0)))
     }
 }

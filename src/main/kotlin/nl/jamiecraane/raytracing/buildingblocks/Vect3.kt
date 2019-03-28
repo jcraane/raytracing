@@ -1,6 +1,6 @@
 package nl.jamiecraane.raytracing.buildingblocks
 
-data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
+data class Vect3(val x: Double, val y: Double, val z: Double = 0.0) {
     infix operator fun plus(other: Vect3) =
         Vect3(x + other.x, y + other.y, z + other.z)
 
@@ -18,7 +18,7 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
         return Vect3(cx, cy, cz)
     }
 
-    fun scale(scalar: Float) = Vect3(x * scalar, y * scalar, z * scalar)
+    fun scale(scalar: Double) = Vect3(x * scalar, y * scalar, z * scalar)
 
     /**
      * Calculates the length (magnitude) of the vector.
@@ -31,15 +31,15 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
 
     fun normalize(): Vect3 {
         val m = magnitude()
-        return Vect3((x / m).toFloat(), (y / m).toFloat(), (z / m).toFloat())
+        return Vect3((x / m), (y / m), (z / m))
     }
 
-    fun angleBetween(other: Vect3): Float {
+    fun angleBetween(other: Vect3): Double {
         val radians = Math.acos((this.dotProduct(other)) / (magnitude() * other.magnitude()))
-        return Math.toDegrees(radians).toFloat()
+        return Math.toDegrees(radians)
     }
 
-    fun isOrthogonalTo(other: Vect3) = this.dotProduct(other) == 0F
+    fun isOrthogonalTo(other: Vect3) = this.dotProduct(other) == 0.0
 
     override infix operator fun equals(other: Any?): Boolean {
         return if (other is Vect3) {
@@ -62,6 +62,6 @@ data class Vect3(val x: Float, val y: Float, val z: Float = 0F) {
         /**
          * Returns a vector at the origin (0,0,0).
          */
-        fun originVector() = Vect3(0F, 0F)
+        fun originVector() = Vect3(0.0, 0.0)
     }
 }

@@ -5,5 +5,5 @@ import nl.jamiecraane.raytracing.scene.SceneDsl
 
 @SceneDsl
 data class Light(val position: Vect3) {
-    var intensity: Float = 1F
+    var intensity: Double = 1.0
 }

@@ -9,7 +9,7 @@ import nl.jamiecraane.raytracing.scene.SceneDsl
  */
 @SceneDsl
 data class Sphere(val center: Vect3, val material: Material) {
-    var radius = 1F
+    var radius = 1.0
     set(value) {
         field = value
         diameter = field * field
@@ -18,23 +18,23 @@ data class Sphere(val center: Vect3, val material: Material) {
     /**
      * @see https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
      * @param dirNormalized Normalized direction vector
-     * @return Pair<Boolean, Float> Pair containing a boolean which indicates if the ray intersected with the sphere and a float which is the distance of the sphere to the ray.
+     * @return Pair<Boolean, Double> Pair containing a boolean which indicates if the ray intersected with the sphere and a float which is the distance of the sphere to the ray.
      */
-    fun rayIntersect(origin: Vect3, dirNormalized: Vect3): Pair<Boolean, Float> {
+    fun rayIntersect(origin: Vect3, dirNormalized: Vect3): Pair<Boolean, Double> {
         val L = center - origin
-        val tca : Float = L.dotProduct(dirNormalized)
+        val tca : Double = L.dotProduct(dirNormalized)
         if (tca < 0) {
-            return false to 0F
+            return false to 0.0
         }
         // (a^2 + b^2 = c^2)
         val c2 = L.dotProduct(L)
         val b2 = tca * tca
         // d = a^2
         val d = Math.sqrt((c2 - b2).toDouble())
-        val thc = Math.sqrt((diameter - (d*d))).toFloat()
-        if (thc > diameter) return false to 0F
-        var t0 : Float = tca - thc
-        val t1 : Float = tca + thc
+        val thc = Math.sqrt((diameter - (d*d)))
+        if (thc > diameter) return false to 0.0
+        var t0 : Double = tca - thc
+        val t1 : Double = tca + thc
         if (t0 < 0) {
             t0 = t1
         }
