@@ -11,6 +11,7 @@ import nl.jamiecraane.raytracing.material.Material
 import nl.jamiecraane.raytracing.objects.Sphere
 import nl.jamiecraane.raytracing.output.ImageCanvas
 import nl.jamiecraane.raytracing.output.RawImage
+import nl.jamiecraane.raytracing.renderingsamples.complexScene
 import nl.jamiecraane.raytracing.renderingsamples.simpleScene
 import nl.jamiecraane.raytracing.scene.Scene
 import nl.jamiecraane.raytracing.util.BoundedList
@@ -49,7 +50,7 @@ private fun createJFrame(): ImageCanvas {
 private const val width = 1024
 private const val height = 768
 private const val recursionDepth = 4
-private val renderMode = RenderMode.PLAIN
+private val renderMode = RenderMode.STOCHASTIC
 private val hitPoints = BoundedList<Vect3>(10, mutableListOf())
 private val whatToRender = EnumSet.of(
     WhatToRender.FLAT,
